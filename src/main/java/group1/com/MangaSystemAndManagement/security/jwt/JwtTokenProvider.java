@@ -1,4 +1,4 @@
-package com.kilig.sba_assignment.security.jwt;
+package group1.com.MangaSystemAndManagement.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;

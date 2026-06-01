@@ -1,7 +1,7 @@
-package com.kilig.sba_assignment.security.service;
+package group1.com.MangaSystemAndManagement.security.service;
 
-import com.kilig.sba_assignment.model.Teacher;
-import com.kilig.sba_assignment.security.jwt.JwtTokenProvider;
+import group1.com.MangaSystemAndManagement.model.Account;
+import group1.com.MangaSystemAndManagement.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,12 +19,12 @@ public class AuthenticationService {
         return passwordEncoder.encode(password);
     }
 
-    public String generateToken(Teacher teacher) {
+    public String generateToken(Account account) {
         return jwtTokenProvider.generateToken(
             org.springframework.security.core.userdetails.User.builder()
-                .username(teacher.getEmail())
-                .password(teacher.getPassword())
-                .roles("TEACHER")
+                .username(account.getEmail())
+                .password(account.getPassword())
+                .roles("MANGAKA")
                 .build()
         );
     }

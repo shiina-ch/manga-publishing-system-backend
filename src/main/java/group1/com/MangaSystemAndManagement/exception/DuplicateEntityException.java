@@ -1,4 +1,4 @@
-package com.kilig.sba_assignment.exception;
+package group1.com.MangaSystemAndManagement.exception;
 
 public class DuplicateEntityException extends RuntimeException {
 

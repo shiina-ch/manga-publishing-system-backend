@@ -1,7 +1,6 @@
-package com.kilig.sba_assignment.security.service;
+package group1.com.MangaSystemAndManagement.security.service;
 
-import com.kilig.sba_assignment.model.Teacher;
-import com.kilig.sba_assignment.repository.TeacherRepository;
+import group1.com.MangaSystemAndManagement.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,11 +11,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final TeacherRepository teacherRepository;
+    private final AccountRepository accountRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return teacherRepository.findByEmail(email)
+        return accountRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
     }
 }

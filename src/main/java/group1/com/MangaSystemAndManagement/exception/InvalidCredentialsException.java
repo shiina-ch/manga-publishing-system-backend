@@ -1,5 +1,4 @@
-package com.kilig.sba_assignment.exception;
-
+package group1.com.MangaSystemAndManagement.exception;
 /**
  * Exception thrown when user credentials (email or password) are invalid
  */

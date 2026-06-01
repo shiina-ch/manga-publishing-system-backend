@@ -1,7 +1,7 @@
-package com.kilig.sba_assignment.security.config;
+package group1.com.MangaSystemAndManagement.security.config;
 
-import com.kilig.sba_assignment.security.jwt.JwtAuthenticationFilter;
-import com.kilig.sba_assignment.security.service.CustomUserDetailsService;
+import group1.com.MangaSystemAndManagement.security.jwt.JwtAuthenticationFilter;
+import group1.com.MangaSystemAndManagement.security.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

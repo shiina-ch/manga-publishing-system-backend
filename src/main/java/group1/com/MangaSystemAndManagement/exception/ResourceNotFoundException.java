@@ -1,4 +1,4 @@
-package com.kilig.sba_assignment.exception;
+package group1.com.MangaSystemAndManagement.exception;
 
 /**
  * Exception thrown when a required resource is not found

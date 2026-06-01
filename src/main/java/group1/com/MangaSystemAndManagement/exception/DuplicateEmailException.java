@@ -1,4 +1,4 @@
-package com.kilig.sba_assignment.exception;
+package group1.com.MangaSystemAndManagement.exception;
 
 /**
  * Exception thrown when trying to create a user with an email that already exists
