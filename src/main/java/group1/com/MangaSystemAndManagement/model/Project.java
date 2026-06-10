@@ -13,6 +13,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
+@Table(name = "Project")
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,5 +39,6 @@ public class Project {
     @ColumnDefault("getdate()")
     @Column(name = "CreatedAt")
     private Instant createdAt;
+
 
 }

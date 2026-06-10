@@ -14,6 +14,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
+@Table(name = "Submission")
 public class Submission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,5 +56,6 @@ public class Submission {
     @ColumnDefault("getdate()")
     @Column(name = "SubmittedAt")
     private Instant submittedAt;
+
 
 }

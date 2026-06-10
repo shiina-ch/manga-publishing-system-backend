@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
+@Table(name = "Planning")
 public class Planning {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,5 +33,6 @@ public class Planning {
     @Nationalized
     @Column(name = "Status", length = 50)
     private String status;
+
 
 }

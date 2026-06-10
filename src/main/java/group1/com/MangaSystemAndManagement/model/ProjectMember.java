@@ -11,6 +11,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
+@Table(name = "ProjectMember")
 public class ProjectMember {
     @EmbeddedId
     private ProjectMemberId id;
@@ -30,5 +31,7 @@ public class ProjectMember {
     @ColumnDefault("getdate()")
     @Column(name = "JoinedAt")
     private Instant joinedAt;
+
+}
 
 }

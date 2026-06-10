@@ -13,19 +13,15 @@ import java.io.Serializable;
 @Setter
 @EqualsAndHashCode
 @Embeddable
-public class ProjectMemberId implements Serializable {
-    private static final long serialVersionUID = 2059023270750384037L;
-    @NotNull
-    @Column(name = "ProjectId", nullable = false)
-    private Long projectId;
-
+public class AccountSystemRoleId implements Serializable {
+    private static final long serialVersionUID = 5686257289928054670L;
     @NotNull
     @Column(name = "AccountId", nullable = false)
     private Long accountId;
 
     @NotNull
-    @Column(name = "ProjectRoleId", nullable = false)
-    private Long projectRoleId;
+    @Column(name = "SystemRoleId", nullable = false)
+    private Long systemRoleId;
 
 
 }

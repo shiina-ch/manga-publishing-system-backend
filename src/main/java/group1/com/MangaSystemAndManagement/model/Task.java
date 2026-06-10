@@ -13,6 +13,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
+@Table(name = "Task")
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

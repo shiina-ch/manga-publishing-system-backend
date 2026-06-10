@@ -14,6 +14,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
+@Table(name = "Vote")
 public class Vote {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

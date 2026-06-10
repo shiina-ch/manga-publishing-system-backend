@@ -11,6 +11,7 @@ import org.hibernate.annotations.Nationalized;
 @Getter
 @Setter
 @Entity
+@Table(name = "Page")
 public class Page {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,5 +31,6 @@ public class Page {
     @Nationalized
     @Column(name = "Status", length = 50)
     private String status;
+
 
 }

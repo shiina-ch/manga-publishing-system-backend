@@ -10,6 +10,7 @@ import org.hibernate.annotations.Nationalized;
 @Getter
 @Setter
 @Entity
+@Table(name = "ProjectRole")
 public class ProjectRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
