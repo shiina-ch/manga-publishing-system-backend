@@ -1,4 +1,4 @@
-package com.kilig.sba_assignment.config;
+package group1.com.MangaSystemAndManagement.config;
 
   import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;

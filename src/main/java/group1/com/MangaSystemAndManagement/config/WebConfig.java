@@ -1,4 +1,4 @@
-package com.kilig.sba_assignment.config;
+package group1.com.MangaSystemAndManagement.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

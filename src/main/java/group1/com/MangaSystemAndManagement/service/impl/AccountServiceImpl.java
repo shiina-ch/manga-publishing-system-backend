@@ -51,10 +51,10 @@ public class AccountServiceImpl implements AccountService {
         newAccount.setSystemRole(role != null ? List.of(role) : List.of());
 
         Account savedAccount = accountRepository.save(newAccount);
-        String token = authenticationService.generateToken(savedAccount);
+//        String token = authenticationService.generateToken(savedAccount);
 
         return Map.of(
-            "token", token,
+//            "token", token,
             "account", savedAccount
         );
     }
