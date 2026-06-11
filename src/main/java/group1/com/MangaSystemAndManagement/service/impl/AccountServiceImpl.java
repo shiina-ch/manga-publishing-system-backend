@@ -17,6 +17,7 @@ import group1.com.MangaSystemAndManagement.repository.AccountRepository;
 import group1.com.MangaSystemAndManagement.repository.SystemRoleRepository;
 import group1.com.MangaSystemAndManagement.security.service.AuthenticationService;
 import group1.com.MangaSystemAndManagement.service.interfaces.AccountService;
+import group1.com.MangaSystemAndManagement.service.interfaces.NotificationService;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -33,13 +34,14 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private AuthenticationService authenticationService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @Override
     public Map<String, Object> createAccount(AccountRequest request) {
         if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new DuplicateEmailException("Email đã tồn tại");
         }
-
-        SystemRole role = systemRoleRepository.findByRoleName(("MANGAKA"));
 
         Account newAccount = new Account();
         newAccount.setFirstName(request.getFirstName());
@@ -48,7 +50,16 @@ public class AccountServiceImpl implements AccountService {
         newAccount.setEmail(request.getEmail());
         newAccount.setPassword(passwordEncoder.encode(request.getPassword()));
         newAccount.setAddress(request.getAddress());
-        newAccount.setSystemRole(role != null ? List.of(role) : List.of());
+
+        if ("ASSIST".equalsIgnoreCase(request.getRequestedRole())) {
+            newAccount.setStatus("PENDING");
+            newAccount.setRequestedRole("ASSIST");
+            newAccount.setSystemRole(List.of());
+        } else {
+            SystemRole role = systemRoleRepository.findByRoleName("MANGAKA");
+            newAccount.setStatus("ACTIVE");
+            newAccount.setSystemRole(role != null ? List.of(role) : List.of());
+        }
 
         Account savedAccount = accountRepository.save(newAccount);
 //        String token = authenticationService.generateToken(savedAccount);
@@ -71,5 +82,22 @@ public class AccountServiceImpl implements AccountService {
             "token", token,
             "account", existedAccount
         );
+    }
+
+    @Override
+    public void approveAccountRole(Long accountId, String roleName) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        SystemRole role = systemRoleRepository.findByRoleName(roleName);
+        if (role == null) {
+            throw new RuntimeException("Role " + roleName + " not found");
+        }
+
+        account.setStatus("ACTIVE");
+        account.setSystemRole(List.of(role));
+        accountRepository.save(account);
+
+        notificationService.createNotification(account, "Your account has been approved and activated with the " + roleName + " role.");
     }
 }

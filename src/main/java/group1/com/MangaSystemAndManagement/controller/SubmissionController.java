@@ -59,4 +59,13 @@ public class SubmissionController {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
         }
     }
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<ResponseBase> approveAndCreateProject(@PathVariable Long id) {
+        try {
+            Submission result = service.approveAndCreateProject(id);
+            return ResponseEntity.status(200).body(new ResponseBase(200, "Submission approved and project created successfully", result));
+        } catch (Exception e) {
+            return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
+        }
+    }
 }

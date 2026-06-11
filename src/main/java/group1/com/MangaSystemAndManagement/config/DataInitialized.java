@@ -22,8 +22,8 @@ public class DataInitialized implements CommandLineRunner {
             "ASSISTANT",
             "TANTOR",
             "EDITOR",
-            "ADMIN"
-    );
+            "ADMIN",
+            "MANAGER");
 
     @Override
     public void run(@Nullable String... args) {

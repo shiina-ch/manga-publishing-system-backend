@@ -8,4 +8,5 @@ public interface SubmissionService {
     List<Submission> findAll();
     Submission update(Long id, Submission entity);
     void delete(Long id);
+    Submission approveAndCreateProject(Long submissionId);
 }

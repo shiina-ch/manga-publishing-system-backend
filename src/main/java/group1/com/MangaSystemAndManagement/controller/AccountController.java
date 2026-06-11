@@ -4,9 +4,12 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import group1.com.MangaSystemAndManagement.dto.request.AccountLoginRequest;
@@ -24,7 +27,7 @@ public class AccountController {
     private AccountService accountService;
 
     @PostMapping("/auth/accounts")
-    public ResponseEntity<ResponseBase> createAccount(@RequestBody AccountRequest request){
+    public ResponseEntity<ResponseBase> createAccount(@RequestBody AccountRequest request) {
         try {
             Map<String, Object> result = accountService.createAccount(request);
             ResponseBase response = new ResponseBase();
@@ -42,9 +45,9 @@ public class AccountController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<ResponseBase> loginAccount(@RequestBody AccountLoginRequest loginRequest){
+    public ResponseEntity<ResponseBase> loginAccount(@RequestBody AccountLoginRequest loginRequest) {
         try {
-            Map<String,Object> result = accountService.login(loginRequest);
+            Map<String, Object> result = accountService.login(loginRequest);
             ResponseBase response = new ResponseBase();
             response.setCode(200);
             response.setMessage("Đăng nhập thành công");
@@ -55,8 +58,28 @@ public class AccountController {
             response.setCode(401);
             response.setMessage(e.getMessage());
             response.setData(null);
-            return ResponseEntity.status(401).body(response);    
+            return ResponseEntity.status(401).body(response);
         }
 
+    }
+
+    @PostMapping("/admin/accounts/{accountId}/approve")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('MANAGER')")
+    public ResponseEntity<ResponseBase> approveAccountRole(@PathVariable Long accountId,
+            @RequestParam String roleName) {
+        try {
+            accountService.approveAccountRole(accountId, roleName);
+            ResponseBase response = new ResponseBase();
+            response.setCode(200);
+            response.setMessage("Tài khoản đã được duyệt và gán quyền " + roleName);
+            response.setData(null);
+            return ResponseEntity.status(200).body(response);
+        } catch (Exception e) {
+            ResponseBase response = new ResponseBase();
+            response.setCode(400);
+            response.setMessage(e.getMessage());
+            response.setData(null);
+            return ResponseEntity.status(400).body(response);
+        }
     }
 }

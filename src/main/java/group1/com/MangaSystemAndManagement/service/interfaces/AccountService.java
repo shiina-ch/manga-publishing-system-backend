@@ -8,4 +8,5 @@ import group1.com.MangaSystemAndManagement.dto.request.AccountRequest;
 public interface AccountService {
     public Map<String, Object> createAccount(AccountRequest request);
     public Map<String, Object> login(AccountLoginRequest loginRequest);
+    void approveAccountRole(Long accountId, String roleName);
 }

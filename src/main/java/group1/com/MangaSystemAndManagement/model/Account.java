@@ -36,6 +36,12 @@ public class Account implements UserDetails {
     @ManyToMany(fetch = FetchType.EAGER)
     private List<SystemRole> systemRole;
 
+    @Column(name = "status")
+    private String status = "ACTIVE";
+
+    @Column(name = "requested_role")
+    private String requestedRole;
+
     public Account() {}
 
     public Account(long id, String firstName, String lastName, String phoneNumber,
@@ -73,6 +79,12 @@ public class Account implements UserDetails {
 
     public List<SystemRole> getSystemRole() { return systemRole; }
     public void setSystemRole(List<SystemRole> systemRole) { this.systemRole = systemRole; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getRequestedRole() { return requestedRole; }
+    public void setRequestedRole(String requestedRole) { this.requestedRole = requestedRole; }
 
     // UserDetails methods
     @Override
