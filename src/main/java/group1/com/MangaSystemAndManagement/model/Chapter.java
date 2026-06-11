@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Entity
@@ -29,5 +31,6 @@ public class Chapter {
     @Column(name = "Status", length = 50)
     private String status;
 
-
+    @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SketchPage> sketchPages;
 }
