@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.service.impl;
+import group1.com.MangaSystemAndManagement.dto.request.ProjectRoleRequest;
 import group1.com.MangaSystemAndManagement.model.ProjectRole;
 import group1.com.MangaSystemAndManagement.repository.ProjectRoleRepository;
 import group1.com.MangaSystemAndManagement.service.interfaces.ProjectRoleService;
@@ -13,7 +14,9 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     private final ProjectRoleRepository repository;
     @Override
     @Transactional
-    public ProjectRole create(ProjectRole entity) {
+    public ProjectRole create(ProjectRoleRequest request) {
+        ProjectRole entity = new ProjectRole();
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override
@@ -26,11 +29,10 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     }
     @Override
     @Transactional
-    public ProjectRole update(Long id, ProjectRole entity) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("ProjectRole not found with id " + id);
-        }
-        entity.setId(id);
+    public ProjectRole update(Long id, ProjectRoleRequest request) {
+        ProjectRole entity = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("ProjectRole not found with id " + id));
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override

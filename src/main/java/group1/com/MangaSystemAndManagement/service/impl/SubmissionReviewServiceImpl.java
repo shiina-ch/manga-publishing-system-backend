@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.service.impl;
+import group1.com.MangaSystemAndManagement.dto.request.SubmissionReviewRequest;
 import group1.com.MangaSystemAndManagement.model.SubmissionReview;
 import group1.com.MangaSystemAndManagement.repository.SubmissionReviewRepository;
 import group1.com.MangaSystemAndManagement.service.interfaces.SubmissionReviewService;
@@ -13,7 +14,9 @@ public class SubmissionReviewServiceImpl implements SubmissionReviewService {
     private final SubmissionReviewRepository repository;
     @Override
     @Transactional
-    public SubmissionReview create(SubmissionReview entity) {
+    public SubmissionReview create(SubmissionReviewRequest request) {
+        SubmissionReview entity = new SubmissionReview();
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override
@@ -26,11 +29,10 @@ public class SubmissionReviewServiceImpl implements SubmissionReviewService {
     }
     @Override
     @Transactional
-    public SubmissionReview update(Long id, SubmissionReview entity) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("SubmissionReview not found with id " + id);
-        }
-        entity.setId(id);
+    public SubmissionReview update(Long id, SubmissionReviewRequest request) {
+        SubmissionReview entity = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("SubmissionReview not found with id " + id));
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override

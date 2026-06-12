@@ -57,7 +57,9 @@ public class SketchWorkflowServiceImpl implements SketchWorkflowService {
         sketchPage.setStatus("SKETCH_CREATED");
         sketchPage.setCreatedAt(Instant.now());
 
-        return sketchPageService.create(sketchPage);
+        group1.com.MangaSystemAndManagement.dto.request.SketchPageRequest reqDto = new group1.com.MangaSystemAndManagement.dto.request.SketchPageRequest();
+        org.springframework.beans.BeanUtils.copyProperties(sketchPage, reqDto);
+        return sketchPageService.create(reqDto);
     }
 
     @Override
@@ -88,14 +90,18 @@ public class SketchWorkflowServiceImpl implements SketchWorkflowService {
                 task.setAssignedTo(assigneeOpt.get());
                 task.setStatus("ASSIGNED");
 
-                sketchTaskService.create(task);
+                group1.com.MangaSystemAndManagement.dto.request.SketchTaskRequest taskReq = new group1.com.MangaSystemAndManagement.dto.request.SketchTaskRequest();
+                org.springframework.beans.BeanUtils.copyProperties(task, taskReq);
+                sketchTaskService.create(taskReq);
             }
         }
 
         // Update sketch page status
         sketchPage.setStatus("TASKS_ASSIGNED");
         sketchPage.setUpdatedAt(Instant.now());
-        sketchPageService.update(sketchPage.getId(), sketchPage);
+        group1.com.MangaSystemAndManagement.dto.request.SketchPageRequest spReq1 = new group1.com.MangaSystemAndManagement.dto.request.SketchPageRequest();
+        org.springframework.beans.BeanUtils.copyProperties(sketchPage, spReq1);
+        sketchPageService.update(sketchPage.getId(), spReq1);
     }
 
     @Override
@@ -109,7 +115,7 @@ public class SketchWorkflowServiceImpl implements SketchWorkflowService {
         SketchTask task = taskOpt.get();
 
         // Validate that the completer is the assigned person
-        if (!task.getAssignedTo().getId().equals(req.getCompletedById())) {
+        if (!req.getCompletedById().equals(task.getAssignedTo().getId())) {
             throw new AccessDeniedException("Only the assigned assistant can complete this task");
         }
 
@@ -117,7 +123,9 @@ public class SketchWorkflowServiceImpl implements SketchWorkflowService {
         task.setStatus("COMPLETED");
         task.setCompletedUrl(req.getCompletedUrl());
         task.setCompletedAt(Instant.now());
-        SketchTask updated = sketchTaskService.update(task.getId(), task);
+        group1.com.MangaSystemAndManagement.dto.request.SketchTaskRequest taskReq2 = new group1.com.MangaSystemAndManagement.dto.request.SketchTaskRequest();
+        org.springframework.beans.BeanUtils.copyProperties(task, taskReq2);
+        SketchTask updated = sketchTaskService.update(task.getId(), taskReq2);
 
         // Check if all tasks for this sketch page are completed
         SketchPage sketchPage = task.getSketchPage();
@@ -131,7 +139,9 @@ public class SketchWorkflowServiceImpl implements SketchWorkflowService {
         if (allCompleted) {
             sketchPage.setStatus("SKETCHES_COMPLETED");
             sketchPage.setUpdatedAt(Instant.now());
-            sketchPageService.update(sketchPage.getId(), sketchPage);
+            group1.com.MangaSystemAndManagement.dto.request.SketchPageRequest spReq2 = new group1.com.MangaSystemAndManagement.dto.request.SketchPageRequest();
+            org.springframework.beans.BeanUtils.copyProperties(sketchPage, spReq2);
+            sketchPageService.update(sketchPage.getId(), spReq2);
         }
 
         return updated;
@@ -160,14 +170,16 @@ public class SketchWorkflowServiceImpl implements SketchWorkflowService {
         }
 
         // Validate that the submitter is the original creator
-        if (!sketchPage.getCreatedBy().getId().equals(mangakaId)) {
+        if (!mangakaId.equals(sketchPage.getCreatedBy().getId())) {
             throw new AccessDeniedException("Only the original creator can submit this sketch for review");
         }
 
         // Update status to REVIEW_PENDING
         sketchPage.setStatus("REVIEW_PENDING");
         sketchPage.setUpdatedAt(Instant.now());
-        sketchPageService.update(sketchPage.getId(), sketchPage);
+        group1.com.MangaSystemAndManagement.dto.request.SketchPageRequest spReq3 = new group1.com.MangaSystemAndManagement.dto.request.SketchPageRequest();
+        org.springframework.beans.BeanUtils.copyProperties(sketchPage, spReq3);
+        sketchPageService.update(sketchPage.getId(), spReq3);
     }
 
     @Override
@@ -202,7 +214,9 @@ public class SketchWorkflowServiceImpl implements SketchWorkflowService {
         review.setDetailsFeedback(req.getDetailsFeedback());
         review.setReviewedAt(Instant.now());
 
-        SketchReview savedReview = sketchReviewService.create(review);
+        group1.com.MangaSystemAndManagement.dto.request.SketchReviewRequest revReq1 = new group1.com.MangaSystemAndManagement.dto.request.SketchReviewRequest();
+        org.springframework.beans.BeanUtils.copyProperties(review, revReq1);
+        SketchReview savedReview = sketchReviewService.create(revReq1);
 
         // Update sketch page status based on decision
         String decision = req.getDecision() != null ? req.getDecision().trim().toUpperCase() : "";
@@ -212,7 +226,9 @@ public class SketchWorkflowServiceImpl implements SketchWorkflowService {
             sketchPage.setStatus("CHANGES_REQUESTED");
         }
         sketchPage.setUpdatedAt(Instant.now());
-        sketchPageService.update(sketchPage.getId(), sketchPage);
+        group1.com.MangaSystemAndManagement.dto.request.SketchPageRequest spReq4 = new group1.com.MangaSystemAndManagement.dto.request.SketchPageRequest();
+        org.springframework.beans.BeanUtils.copyProperties(sketchPage, spReq4);
+        sketchPageService.update(sketchPage.getId(), spReq4);
 
         return savedReview;
     }
@@ -242,7 +258,9 @@ public class SketchWorkflowServiceImpl implements SketchWorkflowService {
         // Update sketch page status
         sketchPage.setStatus("CHANGES_REQUESTED");
         sketchPage.setUpdatedAt(Instant.now());
-        sketchPageService.update(sketchPage.getId(), sketchPage);
+        group1.com.MangaSystemAndManagement.dto.request.SketchPageRequest spReq5 = new group1.com.MangaSystemAndManagement.dto.request.SketchPageRequest();
+        org.springframework.beans.BeanUtils.copyProperties(sketchPage, spReq5);
+        sketchPageService.update(sketchPage.getId(), spReq5);
 
         // Create a review record for tracking
         SketchReview review = new SketchReview();
@@ -251,7 +269,9 @@ public class SketchWorkflowServiceImpl implements SketchWorkflowService {
         review.setDecision("REQUEST_CHANGES");
         review.setComment(comment);
         review.setReviewedAt(Instant.now());
-        sketchReviewService.create(review);
+        group1.com.MangaSystemAndManagement.dto.request.SketchReviewRequest revReq2 = new group1.com.MangaSystemAndManagement.dto.request.SketchReviewRequest();
+        org.springframework.beans.BeanUtils.copyProperties(review, revReq2);
+        sketchReviewService.create(revReq2);
     }
 
     @Override

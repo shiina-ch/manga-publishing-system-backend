@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.service.impl;
+import group1.com.MangaSystemAndManagement.dto.request.ProjectMemberRequest;
 import group1.com.MangaSystemAndManagement.model.ProjectMember;
 import group1.com.MangaSystemAndManagement.model.ProjectMemberId;
 import group1.com.MangaSystemAndManagement.repository.ProjectMemberRepository;
@@ -14,7 +15,9 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     private final ProjectMemberRepository repository;
     @Override
     @Transactional
-    public ProjectMember create(ProjectMember entity) {
+    public ProjectMember create(ProjectMemberRequest request) {
+        ProjectMember entity = new ProjectMember();
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override
@@ -27,11 +30,10 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     }
     @Override
     @Transactional
-    public ProjectMember update(ProjectMemberId id, ProjectMember entity) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("ProjectMember not found with id " + id);
-        }
-        entity.setId(id);
+    public ProjectMember update(ProjectMemberId id, ProjectMemberRequest request) {
+        ProjectMember entity = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("ProjectMember not found with id " + id));
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override

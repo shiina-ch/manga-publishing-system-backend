@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.controller;
+import group1.com.MangaSystemAndManagement.dto.request.SketchReviewRequest;
 
 import group1.com.MangaSystemAndManagement.model.SketchReview;
 import group1.com.MangaSystemAndManagement.service.interfaces.SketchReviewService;
@@ -18,9 +19,9 @@ public class SketchReviewController {
     private final SketchReviewService service;
 
     @PostMapping
-    public ResponseEntity<ResponseBase> create(@RequestBody SketchReview entity) {
+    public ResponseEntity<ResponseBase> create(@RequestBody SketchReviewRequest request) {
         try {
-            SketchReview result = service.create(entity);
+            SketchReview result = service.create(request);
             return ResponseEntity.status(201).body(new ResponseBase(201, "Created successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
@@ -49,9 +50,9 @@ public class SketchReviewController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody SketchReview entity) {
+    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody SketchReviewRequest request) {
         try {
-            SketchReview result = service.update(id, entity);
+            SketchReview result = service.update(id, request);
             return ResponseEntity.status(200).body(new ResponseBase(200, "Updated successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));

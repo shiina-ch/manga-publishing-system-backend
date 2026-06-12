@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.controller;
+import group1.com.MangaSystemAndManagement.dto.request.ProjectRequest;
 import group1.com.MangaSystemAndManagement.model.Project;
 import group1.com.MangaSystemAndManagement.service.interfaces.ProjectService;
 import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
@@ -14,9 +15,9 @@ import java.util.List;
 public class ProjectController {
     private final ProjectService service;
     @PostMapping
-    public ResponseEntity<ResponseBase> create(@RequestBody Project entity) {
+    public ResponseEntity<ResponseBase> create(@RequestBody ProjectRequest request) {
         try {
-            Project result = service.create(entity);
+            Project result = service.create(request);
             return ResponseEntity.status(201).body(new ResponseBase(201, "Created successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
@@ -42,9 +43,9 @@ public class ProjectController {
         }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody Project entity) {
+    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody ProjectRequest request) {
         try {
-            Project result = service.update(id, entity);
+            Project result = service.update(id, request);
             return ResponseEntity.status(200).body(new ResponseBase(200, "Updated successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));

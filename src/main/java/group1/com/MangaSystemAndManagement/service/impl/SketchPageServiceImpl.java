@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.service.impl;
+import group1.com.MangaSystemAndManagement.dto.request.SketchPageRequest;
 
 import group1.com.MangaSystemAndManagement.model.SketchPage;
 import group1.com.MangaSystemAndManagement.repository.SketchPageRepository;
@@ -17,7 +18,9 @@ public class SketchPageServiceImpl implements SketchPageService {
 
     @Override
     @Transactional
-    public SketchPage create(SketchPage entity) {
+    public SketchPage create(SketchPageRequest request) {
+        SketchPage entity = new SketchPage();
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
 
@@ -33,11 +36,10 @@ public class SketchPageServiceImpl implements SketchPageService {
 
     @Override
     @Transactional
-    public SketchPage update(Long id, SketchPage entity) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("SketchPage not found with id " + id);
-        }
-        entity.setId(id);
+    public SketchPage update(Long id, SketchPageRequest request) {
+        SketchPage entity = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("SketchPage not found with id " + id));
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
 

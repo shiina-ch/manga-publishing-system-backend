@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.service.impl;
+import group1.com.MangaSystemAndManagement.dto.request.SketchReviewRequest;
 
 import group1.com.MangaSystemAndManagement.model.SketchReview;
 import group1.com.MangaSystemAndManagement.repository.SketchReviewRepository;
@@ -17,7 +18,9 @@ public class SketchReviewServiceImpl implements SketchReviewService {
 
     @Override
     @Transactional
-    public SketchReview create(SketchReview entity) {
+    public SketchReview create(SketchReviewRequest request) {
+        SketchReview entity = new SketchReview();
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
 
@@ -33,11 +36,10 @@ public class SketchReviewServiceImpl implements SketchReviewService {
 
     @Override
     @Transactional
-    public SketchReview update(Long id, SketchReview entity) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("SketchReview not found with id " + id);
-        }
-        entity.setId(id);
+    public SketchReview update(Long id, SketchReviewRequest request) {
+        SketchReview entity = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("SketchReview not found with id " + id));
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
 

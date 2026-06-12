@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.controller;
+import group1.com.MangaSystemAndManagement.dto.request.VoteRequest;
 import group1.com.MangaSystemAndManagement.model.Vote;
 import group1.com.MangaSystemAndManagement.service.interfaces.VoteService;
 import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
@@ -14,9 +15,9 @@ import java.util.List;
 public class VoteController {
     private final VoteService service;
     @PostMapping
-    public ResponseEntity<ResponseBase> create(@RequestBody Vote entity) {
+    public ResponseEntity<ResponseBase> create(@RequestBody VoteRequest request) {
         try {
-            Vote result = service.create(entity);
+            Vote result = service.create(request);
             return ResponseEntity.status(201).body(new ResponseBase(201, "Created successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
@@ -42,9 +43,9 @@ public class VoteController {
         }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody Vote entity) {
+    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody VoteRequest request) {
         try {
-            Vote result = service.update(id, entity);
+            Vote result = service.update(id, request);
             return ResponseEntity.status(200).body(new ResponseBase(200, "Updated successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));

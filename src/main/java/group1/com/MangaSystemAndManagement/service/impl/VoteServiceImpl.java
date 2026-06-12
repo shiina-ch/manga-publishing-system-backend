@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.service.impl;
+import group1.com.MangaSystemAndManagement.dto.request.VoteRequest;
 import group1.com.MangaSystemAndManagement.model.Vote;
 import group1.com.MangaSystemAndManagement.repository.VoteRepository;
 import group1.com.MangaSystemAndManagement.service.interfaces.VoteService;
@@ -13,7 +14,9 @@ public class VoteServiceImpl implements VoteService {
     private final VoteRepository repository;
     @Override
     @Transactional
-    public Vote create(Vote entity) {
+    public Vote create(VoteRequest request) {
+        Vote entity = new Vote();
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override
@@ -26,11 +29,10 @@ public class VoteServiceImpl implements VoteService {
     }
     @Override
     @Transactional
-    public Vote update(Long id, Vote entity) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("Vote not found with id " + id);
-        }
-        entity.setId(id);
+    public Vote update(Long id, VoteRequest request) {
+        Vote entity = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Vote not found with id " + id));
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override

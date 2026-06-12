@@ -64,7 +64,9 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
         s.setStatus("SUBMITTED");
         s.setSubmittedAt(Instant.now());
 
-        return submissionService.create(s);
+        group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest reqDto = new group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest();
+        org.springframework.beans.BeanUtils.copyProperties(s, reqDto);
+        return submissionService.create(reqDto);
     }
 
     @Override
@@ -99,7 +101,9 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
         review.setComment(commentBuilder.toString());
         review.setReviewedAt(Instant.now());
 
-        SubmissionReview savedReview = submissionReviewService.create(review);
+        group1.com.MangaSystemAndManagement.dto.request.SubmissionReviewRequest reviewReq = new group1.com.MangaSystemAndManagement.dto.request.SubmissionReviewRequest();
+        org.springframework.beans.BeanUtils.copyProperties(review, reviewReq);
+        SubmissionReview savedReview = submissionReviewService.create(reviewReq);
 
         String decision = req.getDecision() != null ? req.getDecision().trim().toUpperCase() : "";
         if (decision.equals("APPROVE") || decision.equals("APPROVED")) {
@@ -107,7 +111,9 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
         } else {
             submission.setStatus("CHANGES_REQUESTED_BY_TANTOR");
         }
-        submissionService.update(submission.getId(), submission);
+        group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest subReq = new group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest();
+        org.springframework.beans.BeanUtils.copyProperties(submission, subReq);
+        submissionService.update(submission.getId(), subReq);
 
         return savedReview;
     }
@@ -130,7 +136,9 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
         submission.setStatus("RESUBMITTED");
         submission.setSubmittedAt(Instant.now());
 
-        return submissionService.update(submission.getId(), submission);
+        group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest subReq = new group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest();
+        org.springframework.beans.BeanUtils.copyProperties(submission, subReq);
+        return submissionService.update(submission.getId(), subReq);
     }
 
     @Override

@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.controller;
+import group1.com.MangaSystemAndManagement.dto.request.PlanningRequest;
 import group1.com.MangaSystemAndManagement.model.Planning;
 import group1.com.MangaSystemAndManagement.service.interfaces.PlanningService;
 import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
@@ -14,9 +15,9 @@ import java.util.List;
 public class PlanningController {
     private final PlanningService service;
     @PostMapping
-    public ResponseEntity<ResponseBase> create(@RequestBody Planning entity) {
+    public ResponseEntity<ResponseBase> create(@RequestBody PlanningRequest request) {
         try {
-            Planning result = service.create(entity);
+            Planning result = service.create(request);
             return ResponseEntity.status(201).body(new ResponseBase(201, "Created successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
@@ -42,9 +43,9 @@ public class PlanningController {
         }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody Planning entity) {
+    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody PlanningRequest request) {
         try {
-            Planning result = service.update(id, entity);
+            Planning result = service.update(id, request);
             return ResponseEntity.status(200).body(new ResponseBase(200, "Updated successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));

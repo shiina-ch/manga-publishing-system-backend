@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.controller;
+import group1.com.MangaSystemAndManagement.dto.request.ProjectMemberRequest;
 import group1.com.MangaSystemAndManagement.model.ProjectMember;
 import group1.com.MangaSystemAndManagement.model.ProjectMemberId;
 import group1.com.MangaSystemAndManagement.service.interfaces.ProjectMemberService;
@@ -15,9 +16,9 @@ import java.util.List;
 public class ProjectMemberController {
     private final ProjectMemberService service;
     @PostMapping
-    public ResponseEntity<ResponseBase> create(@RequestBody ProjectMember entity) {
+    public ResponseEntity<ResponseBase> create(@RequestBody ProjectMemberRequest request) {
         try {
-            ProjectMember result = service.create(entity);
+            ProjectMember result = service.create(request);
             return ResponseEntity.status(201).body(new ResponseBase(201, "Created successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
@@ -43,9 +44,9 @@ public class ProjectMemberController {
         }
     }
     @PutMapping("/update")
-    public ResponseEntity<ResponseBase> update(@RequestBody ProjectMember entity) {
+    public ResponseEntity<ResponseBase> update(@RequestBody ProjectMemberRequest request) {
         try {
-            ProjectMember result = service.update(entity.getId(), entity);
+            ProjectMember result = service.update(null, request); // TODO: Add ID passing mechanism
             return ResponseEntity.status(200).body(new ResponseBase(200, "Updated successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));

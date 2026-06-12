@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.service.impl;
+import group1.com.MangaSystemAndManagement.dto.request.TaskRequest;
 import group1.com.MangaSystemAndManagement.model.Task;
 import group1.com.MangaSystemAndManagement.repository.TaskRepository;
 import group1.com.MangaSystemAndManagement.service.interfaces.TaskService;
@@ -13,7 +14,9 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository repository;
     @Override
     @Transactional
-    public Task create(Task entity) {
+    public Task create(TaskRequest request) {
+        Task entity = new Task();
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override
@@ -26,11 +29,10 @@ public class TaskServiceImpl implements TaskService {
     }
     @Override
     @Transactional
-    public Task update(Long id, Task entity) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("Task not found with id " + id);
-        }
-        entity.setId(id);
+    public Task update(Long id, TaskRequest request) {
+        Task entity = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Task not found with id " + id));
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override

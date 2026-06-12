@@ -1,5 +1,7 @@
 package group1.com.MangaSystemAndManagement.dto.request;
 
+import group1.com.MangaSystemAndManagement.model.*;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -31,9 +33,6 @@ public class AccountRequest {
         message = "Password must be at least 8 characters with uppercase, lowercase, digit and special character"
     )
     private String password;
-
-    @NotBlank(message = "Address is required")
-    private String address;
 
     private String requestedRole;
 

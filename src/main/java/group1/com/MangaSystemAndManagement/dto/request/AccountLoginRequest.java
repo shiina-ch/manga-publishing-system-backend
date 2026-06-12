@@ -1,5 +1,7 @@
 package group1.com.MangaSystemAndManagement.dto.request;
 
+import group1.com.MangaSystemAndManagement.model.*;
+
 public class AccountLoginRequest {
 
     private String email;

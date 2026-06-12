@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.controller;
+import group1.com.MangaSystemAndManagement.dto.request.ProjectRoleRequest;
 import group1.com.MangaSystemAndManagement.model.ProjectRole;
 import group1.com.MangaSystemAndManagement.service.interfaces.ProjectRoleService;
 import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
@@ -14,9 +15,9 @@ import java.util.List;
 public class ProjectRoleController {
     private final ProjectRoleService service;
     @PostMapping
-    public ResponseEntity<ResponseBase> create(@RequestBody ProjectRole entity) {
+    public ResponseEntity<ResponseBase> create(@RequestBody ProjectRoleRequest request) {
         try {
-            ProjectRole result = service.create(entity);
+            ProjectRole result = service.create(request);
             return ResponseEntity.status(201).body(new ResponseBase(201, "Created successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
@@ -42,9 +43,9 @@ public class ProjectRoleController {
         }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody ProjectRole entity) {
+    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody ProjectRoleRequest request) {
         try {
-            ProjectRole result = service.update(id, entity);
+            ProjectRole result = service.update(id, request);
             return ResponseEntity.status(200).body(new ResponseBase(200, "Updated successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));

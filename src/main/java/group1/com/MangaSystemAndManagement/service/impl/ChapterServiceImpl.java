@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.service.impl;
+import group1.com.MangaSystemAndManagement.dto.request.ChapterRequest;
 import group1.com.MangaSystemAndManagement.model.Chapter;
 import group1.com.MangaSystemAndManagement.repository.ChapterRepository;
 import group1.com.MangaSystemAndManagement.service.interfaces.ChapterService;
@@ -13,7 +14,9 @@ public class ChapterServiceImpl implements ChapterService {
     private final ChapterRepository repository;
     @Override
     @Transactional
-    public Chapter create(Chapter entity) {
+    public Chapter create(ChapterRequest request) {
+        Chapter entity = new Chapter();
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override
@@ -26,11 +29,10 @@ public class ChapterServiceImpl implements ChapterService {
     }
     @Override
     @Transactional
-    public Chapter update(Long id, Chapter entity) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("Chapter not found with id " + id);
-        }
-        entity.setId(id);
+    public Chapter update(Long id, ChapterRequest request) {
+        Chapter entity = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Chapter not found with id " + id));
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override

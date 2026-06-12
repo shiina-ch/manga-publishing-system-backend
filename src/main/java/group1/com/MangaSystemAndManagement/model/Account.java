@@ -30,9 +30,6 @@ public class Account implements UserDetails {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "address", nullable = false)
-    private String address;
-
     @ManyToMany(fetch = FetchType.EAGER)
     private List<SystemRole> systemRole;
 
@@ -45,14 +42,13 @@ public class Account implements UserDetails {
     public Account() {}
 
     public Account(long id, String firstName, String lastName, String phoneNumber,
-                   String email, String password, String address, List<SystemRole> systemRole) {
+                   String email, String password, List<SystemRole> systemRole) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.password = password;
-        this.address = address;
         this.systemRole = systemRole;
     }
 
@@ -73,9 +69,6 @@ public class Account implements UserDetails {
     public void setEmail(String email) { this.email = email; }
 
     public void setPassword(String password) { this.password = password; }
-
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
 
     public List<SystemRole> getSystemRole() { return systemRole; }
     public void setSystemRole(List<SystemRole> systemRole) { this.systemRole = systemRole; }

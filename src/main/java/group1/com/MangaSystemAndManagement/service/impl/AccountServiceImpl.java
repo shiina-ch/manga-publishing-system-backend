@@ -49,7 +49,6 @@ public class AccountServiceImpl implements AccountService {
         newAccount.setPhoneNumber(request.getPhoneNumber());
         newAccount.setEmail(request.getEmail());
         newAccount.setPassword(passwordEncoder.encode(request.getPassword()));
-        newAccount.setAddress(request.getAddress());
 
         if ("ASSIST".equalsIgnoreCase(request.getRequestedRole())) {
             newAccount.setStatus("PENDING");

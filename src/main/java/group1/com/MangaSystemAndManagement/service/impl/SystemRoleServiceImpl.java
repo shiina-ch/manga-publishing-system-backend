@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.service.impl;
+import group1.com.MangaSystemAndManagement.dto.request.SystemRoleRequest;
 
 import group1.com.MangaSystemAndManagement.model.SystemRole;
 import group1.com.MangaSystemAndManagement.repository.SystemRoleRepository;
@@ -18,8 +19,10 @@ public class SystemRoleServiceImpl implements SystemRoleService {
 
     @Override
     @Transactional
-    public SystemRole create(SystemRole systemRole) {
-        return systemRoleRepository.save(systemRole);
+    public SystemRole create(SystemRoleRequest request) {
+        SystemRole entity = new SystemRole();
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
+        return systemRoleRepository.save(entity);
     }
 
     @Override
@@ -34,12 +37,11 @@ public class SystemRoleServiceImpl implements SystemRoleService {
 
     @Override
     @Transactional
-    public SystemRole update(Long id, SystemRole systemRole) {
-        return systemRoleRepository.findById(id).map(existingRole -> {
-            existingRole.setRoleName(systemRole.getRoleName());
-            existingRole.setAccount(systemRole.getAccount());
-            return systemRoleRepository.save(existingRole);
-        }).orElseThrow(() -> new RuntimeException("SystemRole not found with id: " + id));
+    public SystemRole update(Long id, SystemRoleRequest request) {
+        SystemRole entity = systemRoleRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("SystemRole not found with id " + id));
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
+        return systemRoleRepository.save(entity);
     }
 
     @Override

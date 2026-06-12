@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.service.impl;
+import group1.com.MangaSystemAndManagement.dto.request.SketchTaskRequest;
 
 import group1.com.MangaSystemAndManagement.model.SketchTask;
 import group1.com.MangaSystemAndManagement.repository.SketchTaskRepository;
@@ -17,7 +18,9 @@ public class SketchTaskServiceImpl implements SketchTaskService {
 
     @Override
     @Transactional
-    public SketchTask create(SketchTask entity) {
+    public SketchTask create(SketchTaskRequest request) {
+        SketchTask entity = new SketchTask();
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
 
@@ -33,11 +36,10 @@ public class SketchTaskServiceImpl implements SketchTaskService {
 
     @Override
     @Transactional
-    public SketchTask update(Long id, SketchTask entity) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("SketchTask not found with id " + id);
-        }
-        entity.setId(id);
+    public SketchTask update(Long id, SketchTaskRequest request) {
+        SketchTask entity = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("SketchTask not found with id " + id));
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
 

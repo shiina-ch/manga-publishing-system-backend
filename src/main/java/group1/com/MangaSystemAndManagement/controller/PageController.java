@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.controller;
+import group1.com.MangaSystemAndManagement.dto.request.PageRequest;
 import group1.com.MangaSystemAndManagement.model.Page;
 import group1.com.MangaSystemAndManagement.service.interfaces.PageService;
 import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
@@ -14,9 +15,9 @@ import java.util.List;
 public class PageController {
     private final PageService service;
     @PostMapping
-    public ResponseEntity<ResponseBase> create(@RequestBody Page entity) {
+    public ResponseEntity<ResponseBase> create(@RequestBody PageRequest request) {
         try {
-            Page result = service.create(entity);
+            Page result = service.create(request);
             return ResponseEntity.status(201).body(new ResponseBase(201, "Created successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
@@ -42,9 +43,9 @@ public class PageController {
         }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody Page entity) {
+    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody PageRequest request) {
         try {
-            Page result = service.update(id, entity);
+            Page result = service.update(id, request);
             return ResponseEntity.status(200).body(new ResponseBase(200, "Updated successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));

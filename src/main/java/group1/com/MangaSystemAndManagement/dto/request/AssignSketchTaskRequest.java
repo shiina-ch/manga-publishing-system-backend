@@ -1,5 +1,7 @@
 package group1.com.MangaSystemAndManagement.dto.request;
 
+import group1.com.MangaSystemAndManagement.model.*;
+
 import lombok.Getter;
 import lombok.Setter;
 import java.util.List;

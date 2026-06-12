@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.controller;
+import group1.com.MangaSystemAndManagement.dto.request.SketchPageRequest;
 
 import group1.com.MangaSystemAndManagement.model.SketchPage;
 import group1.com.MangaSystemAndManagement.service.interfaces.SketchPageService;
@@ -18,9 +19,9 @@ public class SketchPageController {
     private final SketchPageService service;
 
     @PostMapping
-    public ResponseEntity<ResponseBase> create(@RequestBody SketchPage entity) {
+    public ResponseEntity<ResponseBase> create(@RequestBody SketchPageRequest request) {
         try {
-            SketchPage result = service.create(entity);
+            SketchPage result = service.create(request);
             return ResponseEntity.status(201).body(new ResponseBase(201, "Created successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
@@ -49,9 +50,9 @@ public class SketchPageController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody SketchPage entity) {
+    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody SketchPageRequest request) {
         try {
-            SketchPage result = service.update(id, entity);
+            SketchPage result = service.update(id, request);
             return ResponseEntity.status(200).body(new ResponseBase(200, "Updated successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));

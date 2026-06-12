@@ -68,7 +68,6 @@ public class DataInitialized implements CommandLineRunner {
         adminAccount.setPhoneNumber("0123456789");
         adminAccount.setEmail(adminEmail);
         adminAccount.setPassword(passwordEncoder.encode("admin123"));
-        adminAccount.setAddress("123 Admin Street");
         adminAccount.setSystemRole(List.of(adminRole));
 
         accountRepository.save(adminAccount);

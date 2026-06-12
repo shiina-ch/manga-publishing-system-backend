@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.service.impl;
+import group1.com.MangaSystemAndManagement.dto.request.PlanningRequest;
 import group1.com.MangaSystemAndManagement.model.Planning;
 import group1.com.MangaSystemAndManagement.repository.PlanningRepository;
 import group1.com.MangaSystemAndManagement.service.interfaces.PlanningService;
@@ -13,7 +14,9 @@ public class PlanningServiceImpl implements PlanningService {
     private final PlanningRepository repository;
     @Override
     @Transactional
-    public Planning create(Planning entity) {
+    public Planning create(PlanningRequest request) {
+        Planning entity = new Planning();
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override
@@ -26,11 +29,10 @@ public class PlanningServiceImpl implements PlanningService {
     }
     @Override
     @Transactional
-    public Planning update(Long id, Planning entity) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("Planning not found with id " + id);
-        }
-        entity.setId(id);
+    public Planning update(Long id, PlanningRequest request) {
+        Planning entity = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Planning not found with id " + id));
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override

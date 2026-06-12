@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.service.impl;
+import group1.com.MangaSystemAndManagement.dto.request.PageRequest;
 import group1.com.MangaSystemAndManagement.model.Page;
 import group1.com.MangaSystemAndManagement.repository.PageRepository;
 import group1.com.MangaSystemAndManagement.service.interfaces.PageService;
@@ -13,7 +14,9 @@ public class PageServiceImpl implements PageService {
     private final PageRepository repository;
     @Override
     @Transactional
-    public Page create(Page entity) {
+    public Page create(PageRequest request) {
+        Page entity = new Page();
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override
@@ -26,11 +29,10 @@ public class PageServiceImpl implements PageService {
     }
     @Override
     @Transactional
-    public Page update(Long id, Page entity) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("Page not found with id " + id);
-        }
-        entity.setId(id);
+    public Page update(Long id, PageRequest request) {
+        Page entity = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Page not found with id " + id));
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override

@@ -7,13 +7,13 @@ import java.util.Optional;
 
 public interface SystemRoleService {
 
-        SystemRole create(SystemRole systemRole);
+        SystemRole create(group1.com.MangaSystemAndManagement.dto.request.SystemRoleRequest request);
 
         Optional<SystemRole> findById(Long id);
 
         List<SystemRole> findAll();
 
-        SystemRole update(Long id, SystemRole systemRole);
+        SystemRole update(Long id, group1.com.MangaSystemAndManagement.dto.request.SystemRoleRequest request);
 
         void delete(Long id);
 

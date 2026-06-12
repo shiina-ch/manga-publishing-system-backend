@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.controller;
+import group1.com.MangaSystemAndManagement.dto.request.ChapterRequest;
 import group1.com.MangaSystemAndManagement.model.Chapter;
 import group1.com.MangaSystemAndManagement.service.interfaces.ChapterService;
 import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
@@ -14,9 +15,9 @@ import java.util.List;
 public class ChapterController {
     private final ChapterService service;
     @PostMapping
-    public ResponseEntity<ResponseBase> create(@RequestBody Chapter entity) {
+    public ResponseEntity<ResponseBase> create(@RequestBody ChapterRequest request) {
         try {
-            Chapter result = service.create(entity);
+            Chapter result = service.create(request);
             return ResponseEntity.status(201).body(new ResponseBase(201, "Created successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
@@ -42,9 +43,9 @@ public class ChapterController {
         }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody Chapter entity) {
+    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody ChapterRequest request) {
         try {
-            Chapter result = service.update(id, entity);
+            Chapter result = service.update(id, request);
             return ResponseEntity.status(200).body(new ResponseBase(200, "Updated successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));

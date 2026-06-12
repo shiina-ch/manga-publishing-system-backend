@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.service.impl;
+import group1.com.MangaSystemAndManagement.dto.request.ProjectRequest;
 import group1.com.MangaSystemAndManagement.model.Project;
 import group1.com.MangaSystemAndManagement.repository.ProjectRepository;
 import group1.com.MangaSystemAndManagement.service.interfaces.ProjectService;
@@ -13,7 +14,9 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository repository;
     @Override
     @Transactional
-    public Project create(Project entity) {
+    public Project create(ProjectRequest request) {
+        Project entity = new Project();
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override
@@ -26,11 +29,10 @@ public class ProjectServiceImpl implements ProjectService {
     }
     @Override
     @Transactional
-    public Project update(Long id, Project entity) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("Project not found with id " + id);
-        }
-        entity.setId(id);
+    public Project update(Long id, ProjectRequest request) {
+        Project entity = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Project not found with id " + id));
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override

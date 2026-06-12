@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.controller;
+import group1.com.MangaSystemAndManagement.dto.request.SketchTaskRequest;
 
 import group1.com.MangaSystemAndManagement.model.SketchTask;
 import group1.com.MangaSystemAndManagement.service.interfaces.SketchTaskService;
@@ -18,9 +19,9 @@ public class SketchTaskController {
     private final SketchTaskService service;
 
     @PostMapping
-    public ResponseEntity<ResponseBase> create(@RequestBody SketchTask entity) {
+    public ResponseEntity<ResponseBase> create(@RequestBody SketchTaskRequest request) {
         try {
-            SketchTask result = service.create(entity);
+            SketchTask result = service.create(request);
             return ResponseEntity.status(201).body(new ResponseBase(201, "Created successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
@@ -49,9 +50,9 @@ public class SketchTaskController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody SketchTask entity) {
+    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody SketchTaskRequest request) {
         try {
-            SketchTask result = service.update(id, entity);
+            SketchTask result = service.update(id, request);
             return ResponseEntity.status(200).body(new ResponseBase(200, "Updated successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));

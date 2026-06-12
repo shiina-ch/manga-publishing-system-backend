@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.service.impl;
+import group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest;
 import group1.com.MangaSystemAndManagement.model.Project;
 import group1.com.MangaSystemAndManagement.model.ProjectMember;
 import group1.com.MangaSystemAndManagement.model.ProjectMemberId;
@@ -23,7 +24,9 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final ProjectRoleRepository projectRoleRepository;
     @Override
     @Transactional
-    public Submission create(Submission entity) {
+    public Submission create(SubmissionRequest request) {
+        Submission entity = new Submission();
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override
@@ -36,11 +39,10 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
     @Override
     @Transactional
-    public Submission update(Long id, Submission entity) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("Submission not found with id " + id);
-        }
-        entity.setId(id);
+    public Submission update(Long id, SubmissionRequest request) {
+        Submission entity = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Submission not found with id " + id));
+        org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
     @Override

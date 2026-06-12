@@ -1,4 +1,5 @@
 package group1.com.MangaSystemAndManagement.controller;
+import group1.com.MangaSystemAndManagement.dto.request.TaskRequest;
 import group1.com.MangaSystemAndManagement.model.Task;
 import group1.com.MangaSystemAndManagement.service.interfaces.TaskService;
 import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
@@ -14,9 +15,9 @@ import java.util.List;
 public class TaskController {
     private final TaskService service;
     @PostMapping
-    public ResponseEntity<ResponseBase> create(@RequestBody Task entity) {
+    public ResponseEntity<ResponseBase> create(@RequestBody TaskRequest request) {
         try {
-            Task result = service.create(entity);
+            Task result = service.create(request);
             return ResponseEntity.status(201).body(new ResponseBase(201, "Created successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
@@ -42,9 +43,9 @@ public class TaskController {
         }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody Task entity) {
+    public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody TaskRequest request) {
         try {
-            Task result = service.update(id, entity);
+            Task result = service.update(id, request);
             return ResponseEntity.status(200).body(new ResponseBase(200, "Updated successfully", result));
         } catch (Exception e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
