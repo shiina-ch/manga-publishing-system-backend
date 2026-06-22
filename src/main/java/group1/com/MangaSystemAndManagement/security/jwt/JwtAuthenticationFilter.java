@@ -32,35 +32,46 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
         final String username;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
-        jwt = authHeader.substring(7);
-        username = jwtTokenProvider.extractUsername(jwt);
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-            if (jwtTokenProvider.isTokenValid(jwt, userDetails)) {
-                // Get roles from userDetails
-                List<SimpleGrantedAuthority> authorities = userDetails.getAuthorities().stream()
-                    .map(authority -> new SimpleGrantedAuthority(authority.getAuthority()))
-                    .collect(Collectors.toList());
+        // Fix for Postman double headers causing 4 periods (token1, Bearer token2)
+        String actualJwt = authHeader.substring(7).split(",")[0].trim();
+        
+        // Remove additional "Bearer " if user accidentally pasted it in Swagger UI
+        if (actualJwt.startsWith("Bearer ")) {
+            actualJwt = actualJwt.substring(7).trim();
+        }
+        
+        try {
+            username = jwtTokenProvider.extractUsername(actualJwt);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+                if (jwtTokenProvider.isTokenValid(actualJwt, userDetails)) {
+                    // Get roles from userDetails
+                    List<SimpleGrantedAuthority> authorities = userDetails.getAuthorities().stream()
+                        .map(authority -> new SimpleGrantedAuthority(authority.getAuthority()))
+                        .collect(Collectors.toList());
 
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        authorities
-                );
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            authorities
+                    );
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
 
-                // Log authorities for debugging
-                System.out.println("User authorities: " + authorities);
+                    // Log authorities for debugging
+                    System.out.println("User authorities: " + authorities);
+                }
             }
+        } catch (Exception e) {
+            System.out.println("JWT Token error: " + e.getMessage());
+            // Token is invalid, let it pass to Spring Security to handle (will return 401/403 properly)
         }
         filterChain.doFilter(request, response);
     }

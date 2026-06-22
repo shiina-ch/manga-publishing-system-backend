@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import group1.com.MangaSystemAndManagement.dto.request.AccountLoginRequest;
 import group1.com.MangaSystemAndManagement.dto.request.AccountRequest;
@@ -72,6 +73,62 @@ public class AccountController {
             ResponseBase response = new ResponseBase();
             response.setCode(200);
             response.setMessage("Tài khoản đã được duyệt và gán quyền " + roleName);
+            response.setData(null);
+            return ResponseEntity.status(200).body(response);
+        } catch (Exception e) {
+            ResponseBase response = new ResponseBase();
+            response.setCode(400);
+            response.setMessage(e.getMessage() != null ? e.getMessage() : e.toString());
+            response.setData(null);
+            return ResponseEntity.status(400).body(response);
+        }
+    }
+
+    @GetMapping("/admin/accounts")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<ResponseBase> getAllAccounts() {
+        try {
+            java.util.List<group1.com.MangaSystemAndManagement.model.Account> accounts = accountService.getAllAccounts();
+            ResponseBase response = new ResponseBase();
+            response.setCode(200);
+            response.setMessage("Lấy danh sách tài khoản thành công");
+            response.setData(accounts);
+            return ResponseEntity.status(200).body(response);
+        } catch (Exception e) {
+            ResponseBase response = new ResponseBase();
+            response.setCode(400);
+            response.setMessage(e.getMessage());
+            response.setData(null);
+            return ResponseEntity.status(400).body(response);
+        }
+    }
+
+    @GetMapping("/accounts/{accountId}")
+    public ResponseEntity<ResponseBase> getAccountById(@PathVariable Long accountId) {
+        try {
+            group1.com.MangaSystemAndManagement.model.Account account = accountService.getAccountById(accountId);
+            ResponseBase response = new ResponseBase();
+            response.setCode(200);
+            response.setMessage("Lấy thông tin tài khoản thành công");
+            response.setData(account);
+            return ResponseEntity.status(200).body(response);
+        } catch (Exception e) {
+            ResponseBase response = new ResponseBase();
+            response.setCode(404);
+            response.setMessage(e.getMessage());
+            response.setData(null);
+            return ResponseEntity.status(404).body(response);
+        }
+    }
+
+    @PostMapping("/admin/accounts/{accountId}/deactivate")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('MANAGER')")
+    public ResponseEntity<ResponseBase> deactivateAccount(@PathVariable Long accountId) {
+        try {
+            accountService.deactivateAccount(accountId);
+            ResponseBase response = new ResponseBase();
+            response.setCode(200);
+            response.setMessage("Tài khoản đã được vô hiệu hóa thành công");
             response.setData(null);
             return ResponseEntity.status(200).body(response);
         } catch (Exception e) {

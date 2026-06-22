@@ -39,6 +39,12 @@ public class JwtTokenProvider {
         claims.put("roles", userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()));
+                
+        // Add ID if available
+        if (userDetails instanceof group1.com.MangaSystemAndManagement.model.Account account) {
+            claims.put("id", account.getId());
+        }
+        
         return generateToken(claims, userDetails);
     }
 
