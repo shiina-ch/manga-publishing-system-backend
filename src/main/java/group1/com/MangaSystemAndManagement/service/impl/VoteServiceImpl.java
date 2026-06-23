@@ -8,6 +8,8 @@ import group1.com.MangaSystemAndManagement.model.SubmissionReview;
 import group1.com.MangaSystemAndManagement.model.Vote;
 import group1.com.MangaSystemAndManagement.model.VoteResult;
 import group1.com.MangaSystemAndManagement.model.VoteValue;
+import group1.com.MangaSystemAndManagement.model.AccountStatus;
+import group1.com.MangaSystemAndManagement.model.SystemRoleName;
 import group1.com.MangaSystemAndManagement.repository.AccountRepository;
 import group1.com.MangaSystemAndManagement.repository.SubmissionReviewRepository;
 import group1.com.MangaSystemAndManagement.repository.VoteRepository;
@@ -164,13 +166,12 @@ public class VoteServiceImpl implements VoteService {
     }
 
     private void validateVotingPermission(Account voter) {
-        if (!"ACTIVE".equalsIgnoreCase(voter.getStatus())) {
+        if (!AccountStatus.ACTIVE.matches(voter.getStatus())) {
             throw new AccessDeniedException("Only ACTIVE accounts may vote");
         }
-        boolean isEditor = voter.getSystemRole() != null && voter.getSystemRole().stream()
-                .anyMatch(role -> "EDITOR".equalsIgnoreCase(role.getRoleName()));
+        boolean isEditor = voter.hasRole(SystemRoleName.EDITORIAL_BOARD_MEMBER);
         if (!isEditor) {
-            throw new AccessDeniedException("Only accounts with the EDITOR role may vote");
+            throw new AccessDeniedException("Only Editorial Board Members may vote");
         }
     }
 

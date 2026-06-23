@@ -42,8 +42,7 @@ public class SketchWorkflowServiceImpl implements SketchWorkflowService {
             throw new RuntimeException("Account not found with id " + req.getCreatedById());
         }
         Account creator = creatorOpt.get();
-        boolean isMangaka = creator.getSystemRole() != null && creator.getSystemRole().stream()
-                .anyMatch(r -> "MANGAKA".equalsIgnoreCase(r.getRoleName()));
+        boolean isMangaka = creator.hasRole(SystemRoleName.MANGAKA);
         if (!isMangaka) {
             throw new AccessDeniedException("Only Mangaka can create sketch pages");
         }
@@ -192,16 +191,15 @@ public class SketchWorkflowServiceImpl implements SketchWorkflowService {
         }
         SketchPage sketchPage = sketchPageOpt.get();
 
-        // Validate reviewer exists and is TANTOR
+        // Validate reviewer exists and is a TANTOU_EDITOR
         Optional<Account> reviewerOpt = accountRepository.findById(req.getReviewerId());
         if (reviewerOpt.isEmpty()) {
             throw new RuntimeException("Account not found with id " + req.getReviewerId());
         }
         Account reviewer = reviewerOpt.get();
-        boolean isTantor = reviewer.getSystemRole() != null && reviewer.getSystemRole().stream()
-                .anyMatch(r -> "TANTOR".equalsIgnoreCase(r.getRoleName()));
-        if (!isTantor) {
-            throw new AccessDeniedException("Only Tantor can review sketches");
+        boolean isTantou = reviewer.hasRole(SystemRoleName.TANTOU_EDITOR);
+        if (!isTantou) {
+            throw new AccessDeniedException("Only Tantou Editors can review sketches");
         }
 
         // Create review
@@ -243,16 +241,15 @@ public class SketchWorkflowServiceImpl implements SketchWorkflowService {
         }
         SketchPage sketchPage = sketchPageOpt.get();
 
-        // Validate reviewer exists and is TANTOR
+        // Validate reviewer exists and is a TANTOU_EDITOR
         Optional<Account> reviewerOpt = accountRepository.findById(reviewerId);
         if (reviewerOpt.isEmpty()) {
             throw new RuntimeException("Account not found with id " + reviewerId);
         }
         Account reviewer = reviewerOpt.get();
-        boolean isTantor = reviewer.getSystemRole() != null && reviewer.getSystemRole().stream()
-                .anyMatch(r -> "TANTOR".equalsIgnoreCase(r.getRoleName()));
-        if (!isTantor) {
-            throw new AccessDeniedException("Only Tantor can request changes");
+        boolean isTantou = reviewer.hasRole(SystemRoleName.TANTOU_EDITOR);
+        if (!isTantou) {
+            throw new AccessDeniedException("Only Tantou Editors can request changes");
         }
 
         // Update sketch page status

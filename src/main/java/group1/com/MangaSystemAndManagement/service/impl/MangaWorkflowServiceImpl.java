@@ -8,6 +8,7 @@ import group1.com.MangaSystemAndManagement.model.Project;
 import group1.com.MangaSystemAndManagement.model.Planning;
 import group1.com.MangaSystemAndManagement.model.Submission;
 import group1.com.MangaSystemAndManagement.model.SubmissionReview;
+import group1.com.MangaSystemAndManagement.model.SystemRoleName;
 import group1.com.MangaSystemAndManagement.repository.AccountRepository;
 import group1.com.MangaSystemAndManagement.repository.ProjectRepository;
 import group1.com.MangaSystemAndManagement.repository.PlanningRepository;
@@ -41,8 +42,7 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
             throw new RuntimeException("Submitting account not found");
         }
         Account submitter = accountOpt.get();
-        boolean isMangaka = submitter.getSystemRole() != null && submitter.getSystemRole().stream()
-                .anyMatch(r -> "MANGAKA".equalsIgnoreCase(r.getRoleName()));
+        boolean isMangaka = submitter.hasRole(SystemRoleName.MANGAKA);
         if (!isMangaka) {
             throw new AccessDeniedException("Only Mangaka can submit a Name");
         }
@@ -86,10 +86,9 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
             throw new RuntimeException("Reviewer not found");
         }
         Account reviewer = reviewerOpt.get();
-        boolean isTantor = reviewer.getSystemRole() != null && reviewer.getSystemRole().stream()
-                .anyMatch(r -> "TANTOR".equalsIgnoreCase(r.getRoleName()));
-        if (!isTantor) {
-            throw new AccessDeniedException("Only Tantor can review Names");
+        boolean isTantou = reviewer.hasRole(SystemRoleName.TANTOU_EDITOR);
+        if (!isTantou) {
+            throw new AccessDeniedException("Only Tantou Editors can review Names");
         }
 
         SubmissionReview review = new SubmissionReview();

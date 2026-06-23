@@ -25,7 +25,9 @@ public class FileUploadController {
     private final Path uploadPath = Paths.get("uploads");
 
     @PostMapping(value = "/upload", consumes = "multipart/form-data")
-    @PreAuthorize("hasAuthority('MANGAKA') or hasAuthority('ASSISTANT') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority(T(group1.com.MangaSystemAndManagement.model.SystemRoleName).MANGAKA.name()) " +
+            "or hasAuthority(T(group1.com.MangaSystemAndManagement.model.SystemRoleName).ASSISTANT.name()) " +
+            "or hasAuthority(T(group1.com.MangaSystemAndManagement.model.SystemRoleName).ADMIN.name())")
     @Operation(summary = "Upload an image file (PNG, JPG, JPEG, GIF, WEBP)", description = "Saves the file to local storage and returns its accessible URL.")
     public ResponseEntity<ResponseBase> uploadFile(@RequestParam("file") MultipartFile file) {
         try {

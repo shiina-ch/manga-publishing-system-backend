@@ -2,6 +2,7 @@ package group1.com.MangaSystemAndManagement.service.impl;
 import group1.com.MangaSystemAndManagement.dto.request.SystemRoleRequest;
 
 import group1.com.MangaSystemAndManagement.model.SystemRole;
+import group1.com.MangaSystemAndManagement.model.SystemRoleName;
 import group1.com.MangaSystemAndManagement.repository.SystemRoleRepository;
 import group1.com.MangaSystemAndManagement.service.interfaces.SystemRoleService;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +19,8 @@ public class SystemRoleServiceImpl implements SystemRoleService {
     private final SystemRoleRepository systemRoleRepository;
 
     @Override
-    @Transactional
     public SystemRole create(SystemRoleRequest request) {
-        SystemRole entity = new SystemRole();
-        org.springframework.beans.BeanUtils.copyProperties(request, entity);
-        return systemRoleRepository.save(entity);
+        throw immutableRoleDefinitions();
     }
 
     @Override
@@ -36,26 +34,25 @@ public class SystemRoleServiceImpl implements SystemRoleService {
     }
 
     @Override
-    @Transactional
     public SystemRole update(Long id, SystemRoleRequest request) {
-        SystemRole entity = systemRoleRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("SystemRole not found with id " + id));
-        org.springframework.beans.BeanUtils.copyProperties(request, entity);
-        return systemRoleRepository.save(entity);
+        throw immutableRoleDefinitions();
     }
 
     @Override
-    @Transactional
     public void delete(Long id) {
-        if (!systemRoleRepository.existsById(id)) {
-            throw new RuntimeException("SystemRole not found with id: " + id);
-        }
-        systemRoleRepository.deleteById(id);
+        throw immutableRoleDefinitions();
     }
 
     @Override
     public Optional<SystemRole> findByName(String name) {
-        return Optional.ofNullable(systemRoleRepository.findByRoleName(name));
+        return systemRoleRepository.findAllByRoleNameIgnoreCase(SystemRoleName.from(name).name())
+                .stream()
+                .findFirst();
+    }
+
+    private UnsupportedOperationException immutableRoleDefinitions() {
+        return new UnsupportedOperationException(
+                "System role definitions are fixed and cannot be created, renamed, or deleted");
     }
 }
 

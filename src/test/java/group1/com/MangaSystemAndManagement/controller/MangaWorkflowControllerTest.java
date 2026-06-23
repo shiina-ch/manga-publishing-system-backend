@@ -7,10 +7,10 @@ import group1.com.MangaSystemAndManagement.service.interfaces.MangaWorkflowServi
 import org.springframework.security.access.AccessDeniedException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 
 import static org.mockito.ArgumentMatchers.any;
@@ -27,7 +27,7 @@ public class MangaWorkflowControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private MangaWorkflowService workflowService;
 
     @Test
@@ -47,14 +47,14 @@ public class MangaWorkflowControllerTest {
     }
 
     @Test
-    void reviewName_forbidden_when_not_tantor() throws Exception {
+    void reviewName_forbidden_when_not_tantou_editor() throws Exception {
         ReviewRequest req = new ReviewRequest();
         req.setSubmissionId(10L);
         req.setReviewerId(3L);
         req.setDecision("APPROVE");
 
-        // service throws AccessDeniedException when reviewer is not Tantor
-        when(workflowService.reviewName(any())).thenThrow(new AccessDeniedException("Only Tantor can review Names"));
+        // service throws AccessDeniedException when reviewer is not a Tantou Editor
+        when(workflowService.reviewName(any())).thenThrow(new AccessDeniedException("Only Tantou Editors can review Names"));
 
         mockMvc.perform(post("/api/workflow/name/review")
                 .contentType(MediaType.APPLICATION_JSON)

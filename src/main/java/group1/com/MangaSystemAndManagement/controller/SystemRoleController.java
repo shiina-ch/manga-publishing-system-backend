@@ -6,6 +6,7 @@ import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @RestController
@@ -16,12 +17,7 @@ public class SystemRoleController {
     private final SystemRoleService service;
     @PostMapping
     public ResponseEntity<ResponseBase> create(@RequestBody SystemRoleRequest request) {
-        try {
-            SystemRole result = service.create(request);
-            return ResponseEntity.status(201).body(new ResponseBase(201, "Created successfully", result));
-        } catch (Exception e) {
-            return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
-        }
+        return mutationNotAllowed();
     }
     @GetMapping
     public ResponseEntity<ResponseBase> findAll() {
@@ -44,20 +40,17 @@ public class SystemRoleController {
     }
     @PutMapping("/{id}")
     public ResponseEntity<ResponseBase> update(@PathVariable Long id, @RequestBody SystemRoleRequest request) {
-        try {
-            SystemRole result = service.update(id, request);
-            return ResponseEntity.status(200).body(new ResponseBase(200, "Updated successfully", result));
-        } catch (Exception e) {
-            return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
-        }
+        return mutationNotAllowed();
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseBase> delete(@PathVariable Long id) {
-        try {
-            service.delete(id);
-            return ResponseEntity.status(200).body(new ResponseBase(200, "Deleted successfully", null));
-        } catch (Exception e) {
-            return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
-        }
+        return mutationNotAllowed();
+    }
+
+    private ResponseEntity<ResponseBase> mutationNotAllowed() {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(new ResponseBase(
+                HttpStatus.METHOD_NOT_ALLOWED.value(),
+                "System role definitions are read-only",
+                null));
     }
 }

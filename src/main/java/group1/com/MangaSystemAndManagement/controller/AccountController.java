@@ -65,7 +65,8 @@ public class AccountController {
     }
 
     @PostMapping("/admin/accounts/{accountId}/approve")
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority(T(group1.com.MangaSystemAndManagement.model.SystemRoleName).ADMIN.name()) " +
+            "or hasAuthority(T(group1.com.MangaSystemAndManagement.model.SystemRoleName).MANAGER.name())")
     public ResponseEntity<ResponseBase> approveAccountRole(@PathVariable Long accountId,
             @RequestParam String roleName) {
         try {
@@ -85,7 +86,7 @@ public class AccountController {
     }
 
     @GetMapping("/admin/accounts")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority(T(group1.com.MangaSystemAndManagement.model.SystemRoleName).ADMIN.name())")
     public ResponseEntity<ResponseBase> getAllAccounts() {
         try {
             java.util.List<group1.com.MangaSystemAndManagement.model.Account> accounts = accountService.getAllAccounts();
@@ -122,7 +123,8 @@ public class AccountController {
     }
 
     @PostMapping("/admin/accounts/{accountId}/deactivate")
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority(T(group1.com.MangaSystemAndManagement.model.SystemRoleName).ADMIN.name()) " +
+            "or hasAuthority(T(group1.com.MangaSystemAndManagement.model.SystemRoleName).MANAGER.name())")
     public ResponseEntity<ResponseBase> deactivateAccount(@PathVariable Long accountId) {
         try {
             accountService.deactivateAccount(accountId);

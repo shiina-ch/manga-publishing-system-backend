@@ -107,7 +107,7 @@ class VoteServiceImplTest {
     @Test
     void rejectsInactiveVoter() {
         SubmissionReview review = review();
-        Account voter = voter(VOTER_ID, "INACTIVE", "EDITOR");
+        Account voter = voter(VOTER_ID, "INACTIVE", "EDITORIAL_BOARD_MEMBER");
         when(submissionReviewRepository.findById(REVIEW_ID)).thenReturn(Optional.of(review));
         when(accountRepository.findById(VOTER_ID)).thenReturn(Optional.of(voter));
 
@@ -133,7 +133,7 @@ class VoteServiceImplTest {
 
     @Test
     void repeatedPostUpdatesExistingVoteInsteadOfInserting() {
-        Vote existing = vote(99L, voter(VOTER_ID, "ACTIVE", "EDITOR"), VoteValue.REJECT, "old reason");
+        Vote existing = vote(99L, voter(VOTER_ID, "ACTIVE", "EDITORIAL_BOARD_MEMBER"), VoteValue.REJECT, "old reason");
         Instant previousTime = Instant.parse("2024-01-01T00:00:00Z");
         existing.setVotedAt(previousTime);
         stubEligibleVoteCreation(Optional.of(existing));
@@ -149,7 +149,7 @@ class VoteServiceImplTest {
 
     @Test
     void putCannotChangeVoteOwner() {
-        Vote existing = vote(99L, voter(VOTER_ID, "ACTIVE", "EDITOR"), VoteValue.APPROVE, null);
+        Vote existing = vote(99L, voter(VOTER_ID, "ACTIVE", "EDITORIAL_BOARD_MEMBER"), VoteValue.APPROVE, null);
         when(voteRepository.findById(99L)).thenReturn(Optional.of(existing));
 
         assertThrows(
@@ -161,7 +161,7 @@ class VoteServiceImplTest {
 
     @Test
     void putAcceptsSeparatelyBoxedEqualVoterId() {
-        Account voter = voter(VOTER_ID, "ACTIVE", "EDITOR");
+        Account voter = voter(VOTER_ID, "ACTIVE", "EDITORIAL_BOARD_MEMBER");
         Vote existing = vote(99L, voter, VoteValue.APPROVE, null);
         Long requestVoterId = Long.valueOf("1000");
         Long separatelyBoxedStoredId = Long.valueOf(voter.getId());
@@ -181,7 +181,7 @@ class VoteServiceImplTest {
 
     @Test
     void anotherVoterCannotDeleteVote() {
-        Vote existing = vote(99L, voter(VOTER_ID, "ACTIVE", "EDITOR"), VoteValue.APPROVE, null);
+        Vote existing = vote(99L, voter(VOTER_ID, "ACTIVE", "EDITORIAL_BOARD_MEMBER"), VoteValue.APPROVE, null);
         when(voteRepository.findById(99L)).thenReturn(Optional.of(existing));
 
         assertThrows(AccessDeniedException.class, () -> service.delete(99L, 1001L));
@@ -190,7 +190,7 @@ class VoteServiceImplTest {
 
     @Test
     void deleteAcceptsSeparatelyBoxedEqualVoterId() {
-        Account voter = voter(VOTER_ID, "ACTIVE", "EDITOR");
+        Account voter = voter(VOTER_ID, "ACTIVE", "EDITORIAL_BOARD_MEMBER");
         Vote existing = vote(99L, voter, VoteValue.APPROVE, null);
         Long requestVoterId = Long.valueOf("1000");
         Long separatelyBoxedStoredId = Long.valueOf(voter.getId());
@@ -245,7 +245,7 @@ class VoteServiceImplTest {
     private void stubEligibleVoteCreation(Optional<Vote> existingVote) {
         SubmissionReview review = review();
         Account voter = existingVote.map(Vote::getVoter)
-                .orElseGet(() -> voter(VOTER_ID, "ACTIVE", "EDITOR"));
+                .orElseGet(() -> voter(VOTER_ID, "ACTIVE", "EDITORIAL_BOARD_MEMBER"));
         when(submissionReviewRepository.findById(REVIEW_ID)).thenReturn(Optional.of(review));
         when(accountRepository.findById(VOTER_ID)).thenReturn(Optional.of(voter));
         when(voteRepository.findBySubmissionReview_IdAndVoter_Id(REVIEW_ID, VOTER_ID))

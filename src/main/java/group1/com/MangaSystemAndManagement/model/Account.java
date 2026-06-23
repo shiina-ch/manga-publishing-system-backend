@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Account implements UserDetails {
@@ -34,7 +35,7 @@ public class Account implements UserDetails {
     private List<SystemRole> systemRole;
 
     @Column(name = "status")
-    private String status = "ACTIVE";
+    private String status = AccountStatus.PENDING.name();
 
     @Column(name = "requested_role")
     private String requestedRole;
@@ -75,6 +76,9 @@ public class Account implements UserDetails {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public void setStatus(AccountStatus status) {
+        this.status = status == null ? null : status.name();
+    }
 
     public String getRequestedRole() { return requestedRole; }
     public void setRequestedRole(String requestedRole) { this.requestedRole = requestedRole; }
@@ -84,8 +88,18 @@ public class Account implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (systemRole == null) return List.of();
         return systemRole.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
+                .filter(Objects::nonNull)
+                .map(SystemRole::getRoleName)
+                .map(SystemRoleName::tryFrom)
+                .flatMap(java.util.Optional::stream)
+                .distinct()
+                .map(role -> new SimpleGrantedAuthority(role.name()))
                 .toList();
+    }
+
+    public boolean hasRole(SystemRoleName roleName) {
+        return roleName != null && getAuthorities().stream()
+                .anyMatch(authority -> roleName.name().equals(authority.getAuthority()));
     }
 
     @Override
@@ -104,5 +118,5 @@ public class Account implements UserDetails {
     public boolean isCredentialsNonExpired() { return true; }
 
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() { return AccountStatus.ACTIVE.matches(status); }
 }
