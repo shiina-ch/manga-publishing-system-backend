@@ -1,23 +1,20 @@
-package group1.com.MangaSystemAndManagement.dto.request;
+package group1.com.MangaSystemAndManagement.dto.response;
 
 import group1.com.MangaSystemAndManagement.model.VoteValue;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class VoteRequest {
-    @NotNull
+public class VoteResponse {
+    private Long id;
     private Long submissionReviewId;
-
-    @NotNull
     private Long voterId;
-
-    @NotNull
     private VoteValue voteValue;
-
     private String comment;
+    private Instant votedAt;
 }
