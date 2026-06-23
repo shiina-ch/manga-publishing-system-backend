@@ -1,12 +1,10 @@
 package group1.com.MangaSystemAndManagement.model;
 
-import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
 import java.time.Instant;
@@ -14,7 +12,13 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "Vote")
+@Table(
+        name = "Vote",
+        uniqueConstraints = @UniqueConstraint(
+                name = "UK_Vote_SubmissionReview_Voter",
+                columnNames = {"SubmissionReviewId", "VoterId"}
+        )
+)
 public class Vote {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,18 +37,19 @@ public class Vote {
     @JoinColumn(name = "VoterId", nullable = false)
     private Account voter;
 
-    @Size(max = 50)
+    @NotNull
+    @Enumerated(EnumType.STRING)
     @Nationalized
-    @Column(name = "VoteValue", length = 50)
-    private String voteValue;
+    @Column(name = "VoteValue", nullable = false, length = 50)
+    private VoteValue voteValue;
 
     @Nationalized
     @Lob
     @Column(name = "Comment")
     private String comment;
 
-    @ColumnDefault("getdate()")
-    @Column(name = "VotedAt")
+    @NotNull
+    @Column(name = "VotedAt", nullable = false)
     private Instant votedAt;
 
 }
