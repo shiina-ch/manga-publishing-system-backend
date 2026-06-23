@@ -21,10 +21,9 @@ public class Submission {
     @Column(name = "Id", nullable = false)
     private Long id;
 
-    @NotNull
     @JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "ProjectId", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ProjectId")
     private Project project;
 
     @JsonBackReference

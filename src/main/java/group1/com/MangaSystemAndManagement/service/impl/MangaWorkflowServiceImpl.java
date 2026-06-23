@@ -36,11 +36,6 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
     @Override
     @Transactional
     public Submission submitName(NameSubmissionRequest req) {
-        Optional<Project> projectOpt = projectRepository.findById(req.getProjectId());
-        if (projectOpt.isEmpty()) {
-            throw new RuntimeException("Project not found");
-        }
-
         Optional<Account> accountOpt = accountRepository.findById(req.getSubmittedById());
         if (accountOpt.isEmpty()) {
             throw new RuntimeException("Submitting account not found");
@@ -53,8 +48,16 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
         }
 
         Submission s = new Submission();
-        s.setProject(projectOpt.get());
-        if (req.getPlanningId() != null) {
+        
+        if (req.getProjectId() != null && req.getProjectId() > 0) {
+            Optional<Project> projectOpt = projectRepository.findById(req.getProjectId());
+            if (projectOpt.isEmpty()) {
+                throw new RuntimeException("Project not found");
+            }
+            s.setProject(projectOpt.get());
+        }
+
+        if (req.getPlanningId() != null && req.getPlanningId() > 0) {
             Optional<Planning> planningOpt = planningRepository.findById(req.getPlanningId());
             planningOpt.ifPresent(s::setPlanning);
         }
