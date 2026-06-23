@@ -2,8 +2,8 @@ package group1.com.MangaSystemAndManagement.security.jwt;
 
 import group1.com.MangaSystemAndManagement.model.Account;
 import group1.com.MangaSystemAndManagement.model.SystemRole;
+import group1.com.MangaSystemAndManagement.config.properties.JwtProperties;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.nio.charset.StandardCharsets;
@@ -41,10 +41,7 @@ class JwtTokenProviderTest {
     }
 
     private JwtTokenProvider provider() {
-        JwtTokenProvider provider = new JwtTokenProvider();
-        ReflectionTestUtils.setField(provider, "jwtSecret", TEST_SECRET);
-        ReflectionTestUtils.setField(provider, "jwtExpiration", 60_000L);
-        return provider;
+        return new JwtTokenProvider(new JwtProperties(TEST_SECRET, 60_000L));
     }
 
     private Account accountWithRoles(String... roleNames) {

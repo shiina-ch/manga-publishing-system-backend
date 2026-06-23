@@ -1,5 +1,6 @@
 package group1.com.MangaSystemAndManagement.controller;
 
+import group1.com.MangaSystemAndManagement.config.properties.StorageProperties;
 import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,7 +13,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
@@ -22,7 +22,11 @@ import java.util.UUID;
 @Tag(name = "Files", description = "File upload and storage APIs")
 public class FileUploadController {
 
-    private final Path uploadPath = Paths.get("uploads");
+    private final Path uploadPath;
+
+    public FileUploadController(StorageProperties storageProperties) {
+        this.uploadPath = storageProperties.uploadPath();
+    }
 
     @PostMapping(value = "/upload", consumes = "multipart/form-data")
     @PreAuthorize("hasAuthority(T(group1.com.MangaSystemAndManagement.model.SystemRoleName).MANGAKA.name()) " +

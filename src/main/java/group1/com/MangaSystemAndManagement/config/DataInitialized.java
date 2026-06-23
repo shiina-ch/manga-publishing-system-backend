@@ -1,5 +1,6 @@
 package group1.com.MangaSystemAndManagement.config;
 
+import group1.com.MangaSystemAndManagement.config.properties.BootstrapAdminProperties;
 import group1.com.MangaSystemAndManagement.model.SystemRole;
 import group1.com.MangaSystemAndManagement.model.SystemRoleName;
 import group1.com.MangaSystemAndManagement.model.AccountStatus;
@@ -24,6 +25,7 @@ public class DataInitialized implements CommandLineRunner {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final SystemRoleNormalizationService systemRoleNormalizationService;
+    private final BootstrapAdminProperties bootstrapAdminProperties;
 
     static final List<SystemRoleName> DEFAULT_ROLES = List.of(SystemRoleName.values());
 
@@ -31,7 +33,11 @@ public class DataInitialized implements CommandLineRunner {
     public void run(@Nullable String... args) {
         systemRoleNormalizationService.normalizeLegacyRoles();
         initRoles();
-        initAdminAccount();
+        if (bootstrapAdminProperties.enabled()) {
+            initAdminAccount();
+        } else {
+            log.info("Bootstrap Admin creation is disabled");
+        }
     }
 
     private void initRoles() {
@@ -49,7 +55,7 @@ public class DataInitialized implements CommandLineRunner {
     }
 
     private void initAdminAccount() {
-        String adminEmail = "admin@gmail.com";
+        String adminEmail = bootstrapAdminProperties.email();
         List<SystemRole> adminRoles = systemRoleRepository.findAllByRoleNameIgnoreCase(SystemRoleName.ADMIN.name());
         if (adminRoles.isEmpty()) {
             log.warn("ADMIN role not found, skipping admin account creation.");
@@ -69,9 +75,10 @@ public class DataInitialized implements CommandLineRunner {
         Account adminAccount = new Account();
         adminAccount.setFirstName("Admin");
         adminAccount.setLastName("System");
+        // Placeholder metadata required by the current Account schema.
         adminAccount.setPhoneNumber("0123456789");
         adminAccount.setEmail(adminEmail);
-        adminAccount.setPassword(passwordEncoder.encode("admin123"));
+        adminAccount.setPassword(passwordEncoder.encode(bootstrapAdminProperties.password()));
         adminAccount.setSystemRole(List.of(adminRole));
         adminAccount.setStatus(AccountStatus.ACTIVE);
 

@@ -34,3 +34,15 @@ build/
 
 ### Logs ###
 *.log
+
+# Local environment and secrets
+/.env
+/.env.*
+!/.env.example
+
+/src/main/resources/application-local.properties
+/src/main/resources/application-secrets.properties
+/src/main/resources/*-secrets.properties
+
+# Runtime uploads
+/uploads/
