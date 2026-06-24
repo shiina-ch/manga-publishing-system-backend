@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * Standard error response structure for API responses
@@ -17,6 +18,8 @@ public class ErrorResponse {
     private String error;
     private LocalDateTime timestamp;
     private String path;
+    private String errorCode;
+    private Map<String, Object> details;
 
     public ErrorResponse(int status, String message, String error) {
         this.status = status;

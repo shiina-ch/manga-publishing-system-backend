@@ -1,140 +1,114 @@
 package group1.com.MangaSystemAndManagement.exception;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-/**
- * Global exception handler for all exceptions in the application
- */
+import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    /**
-     * Handle EntityNotFoundException
-     */
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(
-            EntityNotFoundException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                ex.getMessage(),
-                "Entity Not Found"
-        );
-        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    @ExceptionHandler({EntityNotFoundException.class, ResourceNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException ex, WebRequest request) {
+        return response(HttpStatus.NOT_FOUND, "NOT_FOUND", ex.getMessage(), request, null);
     }
 
-    /**
-     * Handle DuplicateEmailException
-     */
     @ExceptionHandler(DuplicateEmailException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateEmailException(
-            DuplicateEmailException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.CONFLICT.value(),
-                ex.getMessage(),
-                "Duplicate Email"
-        );
-        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    public ResponseEntity<ErrorResponse> handleDuplicateEmail(DuplicateEmailException ex, WebRequest request) {
+        return response(HttpStatus.CONFLICT, "DUPLICATE_EMAIL", ex.getMessage(), request, null);
     }
 
-    /**
-     * Handle DuplicateEntityException
-     */
-    @ExceptionHandler(DuplicateEntityException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateEntityException(
-            DuplicateEntityException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.CONFLICT.value(),
-                ex.getMessage(),
-                "Duplicate Entity"
-        );
-        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    @ExceptionHandler({DuplicateEntityException.class, AccountStateConflictException.class})
+    public ResponseEntity<ErrorResponse> handleConflict(RuntimeException ex, WebRequest request) {
+        return response(HttpStatus.CONFLICT, "INVALID_ACCOUNT_STATE", ex.getMessage(), request, null);
     }
 
-    /**
-     * Handle InvalidCredentialsException
-     */
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(
-            InvalidCredentialsException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.UNAUTHORIZED.value(),
-                ex.getMessage(),
-                "Invalid Credentials"
-        );
-        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    @ExceptionHandler({InvalidPublicRoleException.class, IllegalArgumentException.class,
+            ConstraintViolationException.class})
+    public ResponseEntity<ErrorResponse> handleBadRequest(RuntimeException ex, WebRequest request) {
+        return response(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", ex.getMessage(), request, null);
     }
 
-    /**
-     * Handle ResourceNotFoundException
-     */
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
-            ResourceNotFoundException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                ex.getMessage(),
-                "Resource Not Found"
-        );
-        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    @ExceptionHandler({InvalidCredentialsException.class, BadCredentialsException.class})
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(RuntimeException ex, WebRequest request) {
+        return response(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", "Invalid email or password", request, null);
     }
 
-    /**
-     * Handle BadCredentialsException (from Spring Security)
-     */
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentialsException(
-            WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.UNAUTHORIZED.value(),
-                "Invalid email or password",
-                "Bad Credentials"
-        );
-        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    @ExceptionHandler(AccountStatusException.class)
+    public ResponseEntity<ErrorResponse> handleAccountStatus(AccountStatusException ex, WebRequest request) {
+        Map<String, Object> details = ex.getRejectionReason() == null
+                ? null
+                : Map.of("rejectionReason", ex.getRejectionReason());
+        return response(HttpStatus.FORBIDDEN, ex.getErrorCode(), ex.getMessage(), request, details);
     }
 
-    /**
-     * Handle Authentication Exception
-     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex, WebRequest request) {
+        return response(HttpStatus.FORBIDDEN, "ACCESS_DENIED", "Access denied", request, null);
+    }
+
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleAuthenticationException(
-            WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.UNAUTHORIZED.value(),
-                "Authentication failed",
-                "Authentication Error"
-        );
-        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex, WebRequest request) {
+        return response(HttpStatus.UNAUTHORIZED, "AUTHENTICATION_REQUIRED", "Authentication required", request, null);
     }
 
-    /**
-     * Handle general Exception
-     */
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
+        Map<String, Object> details = new LinkedHashMap<>();
+        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+            details.putIfAbsent(error.getField(), error.getDefaultMessage());
+        }
+        ErrorResponse body = body(
+                HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Request validation failed", request, details);
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneralException(
-            Exception ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                ex.getMessage(),
-                "Internal Server Error"
-        );
-        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
+    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex, WebRequest request) {
         log.error("Unexpected error occurred", ex);
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return response(
+                HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "An unexpected error occurred", request, null);
+    }
+
+    private ResponseEntity<ErrorResponse> response(
+            HttpStatus status,
+            String errorCode,
+            String message,
+            WebRequest request,
+            Map<String, Object> details) {
+        return new ResponseEntity<>(body(status, errorCode, message, request, details), status);
+    }
+
+    private ErrorResponse body(
+            HttpStatus status,
+            String errorCode,
+            String message,
+            WebRequest request,
+            Map<String, Object> details) {
+        ErrorResponse body = new ErrorResponse(status.value(), message, status.getReasonPhrase());
+        body.setPath(request.getDescription(false).replace("uri=", ""));
+        body.setErrorCode(errorCode);
+        body.setDetails(details);
+        return body;
     }
 }

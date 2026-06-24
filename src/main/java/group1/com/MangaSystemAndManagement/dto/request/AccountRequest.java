@@ -24,7 +24,7 @@ public class AccountRequest {
     private String phoneNumber;
 
     @NotBlank(message = "Email is required")
-    @Pattern(regexp = "^[a-zA-Z0-9._%+\\-]+@gmail\\.com$", message = "Email must be a valid @gmail.com address")
+    @Pattern(regexp = "(?i)^[a-zA-Z0-9._%+\\-]+@gmail\\.com$", message = "Email must be a valid @gmail.com address")
     private String email;
 
     @NotBlank(message = "Password is required")
@@ -34,6 +34,7 @@ public class AccountRequest {
     )
     private String password;
 
+    @NotBlank(message = "Requested role is required")
     private String requestedRole;
 
 }

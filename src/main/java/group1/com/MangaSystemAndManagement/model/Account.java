@@ -1,5 +1,6 @@
 package group1.com.MangaSystemAndManagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -8,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.time.LocalDateTime;
 
 @Entity
 public class Account implements UserDetails {
@@ -29,6 +31,7 @@ public class Account implements UserDetails {
     private String email;
 
     @Column(name = "password", nullable = false)
+    @JsonIgnore
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -39,6 +42,21 @@ public class Account implements UserDetails {
 
     @Column(name = "requested_role")
     private String requestedRole;
+
+    @Column(name = "approved_by_id")
+    private Long approvedById;
+
+    @Column(name = "approved_at")
+    private LocalDateTime approvedAt;
+
+    @Column(name = "rejection_reason", length = 1000)
+    private String rejectionReason;
+
+    @Column(name = "rejected_by_id")
+    private Long rejectedById;
+
+    @Column(name = "rejected_at")
+    private LocalDateTime rejectedAt;
 
     public Account() {}
 
@@ -82,6 +100,21 @@ public class Account implements UserDetails {
 
     public String getRequestedRole() { return requestedRole; }
     public void setRequestedRole(String requestedRole) { this.requestedRole = requestedRole; }
+
+    public Long getApprovedById() { return approvedById; }
+    public void setApprovedById(Long approvedById) { this.approvedById = approvedById; }
+
+    public LocalDateTime getApprovedAt() { return approvedAt; }
+    public void setApprovedAt(LocalDateTime approvedAt) { this.approvedAt = approvedAt; }
+
+    public String getRejectionReason() { return rejectionReason; }
+    public void setRejectionReason(String rejectionReason) { this.rejectionReason = rejectionReason; }
+
+    public Long getRejectedById() { return rejectedById; }
+    public void setRejectedById(Long rejectedById) { this.rejectedById = rejectedById; }
+
+    public LocalDateTime getRejectedAt() { return rejectedAt; }
+    public void setRejectedAt(LocalDateTime rejectedAt) { this.rejectedAt = rejectedAt; }
 
     // UserDetails methods
     @Override
