@@ -35,5 +35,4 @@ public class Registration {
     @Column(name = "isAdmin")
     private Boolean isAdmin;
 
-
 }

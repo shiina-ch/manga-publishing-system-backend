@@ -3,15 +3,11 @@ package group1.com.MangaSystemAndManagement.service.impl;
 import group1.com.MangaSystemAndManagement.dto.request.NameSubmissionRequest;
 import group1.com.MangaSystemAndManagement.dto.request.ReviewRequest;
 import group1.com.MangaSystemAndManagement.dto.request.ResubmitRequest;
-import group1.com.MangaSystemAndManagement.model.Account;
-import group1.com.MangaSystemAndManagement.model.Project;
-import group1.com.MangaSystemAndManagement.model.Planning;
-import group1.com.MangaSystemAndManagement.model.Submission;
-import group1.com.MangaSystemAndManagement.model.SubmissionReview;
-import group1.com.MangaSystemAndManagement.model.SystemRoleName;
+import group1.com.MangaSystemAndManagement.model.*;
 import group1.com.MangaSystemAndManagement.repository.AccountRepository;
 import group1.com.MangaSystemAndManagement.repository.ProjectRepository;
 import group1.com.MangaSystemAndManagement.repository.PlanningRepository;
+import group1.com.MangaSystemAndManagement.repository.SubmissionRepository;
 import group1.com.MangaSystemAndManagement.service.interfaces.MangaWorkflowService;
 import group1.com.MangaSystemAndManagement.service.interfaces.SubmissionReviewService;
 import group1.com.MangaSystemAndManagement.service.interfaces.SubmissionService;
@@ -30,6 +26,7 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
 
     private final SubmissionService submissionService;
     private final SubmissionReviewService submissionReviewService;
+    private final SubmissionRepository submissionRepository;
     private final AccountRepository accountRepository;
     private final ProjectRepository projectRepository;
     private final PlanningRepository planningRepository;
@@ -64,17 +61,15 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
         s.setSubmittedBy(submitter);
         s.setTitle(req.getTitle());
         s.setContentUrl(req.getContentUrl());
-        s.setStatus("SUBMITTED");
+        s.setStatus(group1.com.MangaSystemAndManagement.model.SubmissionStatus.PENDING);
         s.setSubmittedAt(Instant.now());
 
-        group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest reqDto = new group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest();
-        org.springframework.beans.BeanUtils.copyProperties(s, reqDto);
-        return submissionService.create(reqDto);
+        return submissionRepository.save(s);
     }
 
     @Override
     @Transactional
-    public SubmissionReview reviewName(ReviewRequest req) {
+    public SubmissionReview reviewByTantou(ReviewRequest req) {
         Optional<Submission> subOpt = submissionService.findById(req.getSubmissionId());
         if (subOpt.isEmpty()) {
             throw new RuntimeException("Submission not found");
@@ -86,15 +81,24 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
             throw new RuntimeException("Reviewer not found");
         }
         Account reviewer = reviewerOpt.get();
-        boolean isTantou = reviewer.hasRole(SystemRoleName.TANTOU_EDITOR);
-        if (!isTantou) {
-            throw new AccessDeniedException("Only Tantou Editors can review Names");
+        if (!reviewer.hasRole(SystemRoleName.TANTOU_EDITOR)) {
+            throw new AccessDeniedException("Only Tantou Editors can perform Editorial Review");
+        }
+
+        if (submission.getStatus() != group1.com.MangaSystemAndManagement.model.SubmissionStatus.PENDING && 
+            submission.getStatus() != group1.com.MangaSystemAndManagement.model.SubmissionStatus.PROCESSING) {
+            throw new RuntimeException("Submission must be in PENDING or PROCESSING status for Editorial Review");
         }
 
         SubmissionReview review = new SubmissionReview();
         review.setSubmission(submission);
         review.setReviewer(reviewer);
-        review.setDecision(req.getDecision());
+        review.setStage(group1.com.MangaSystemAndManagement.model.ReviewStage.EDITORIAL);
+        
+        String decision = req.getDecision() != null ? req.getDecision().trim().toUpperCase() : "";
+        if (decision.equals("APPROVE")) decision = "APPROVED";
+        review.setDecision(decision);
+
         StringBuilder commentBuilder = new StringBuilder();
         if (req.getPacingPass() != null) commentBuilder.append("Pacing: ").append(req.getPacingPass() ? "PASS" : "FAIL").append(". ");
         if (req.getStructurePass() != null) commentBuilder.append("Structure: ").append(req.getStructurePass() ? "PASS" : "FAIL").append(". ");
@@ -107,17 +111,110 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
         org.springframework.beans.BeanUtils.copyProperties(review, reviewReq);
         SubmissionReview savedReview = submissionReviewService.create(reviewReq);
 
-        String decision = req.getDecision() != null ? req.getDecision().trim().toUpperCase() : "";
-        if (decision.equals("APPROVE") || decision.equals("APPROVED")) {
-            submission.setStatus("APPROVED_BY_TANTOR");
+        if (decision.equals("APPROVED")) {
+            submission.setStatus(group1.com.MangaSystemAndManagement.model.SubmissionStatus.PENDING_BOARD_REVIEW);
         } else {
-            submission.setStatus("CHANGES_REQUESTED_BY_TANTOR");
+            submission.setStatus(group1.com.MangaSystemAndManagement.model.SubmissionStatus.REJECTED);
         }
+        
         group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest subReq = new group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest();
         org.springframework.beans.BeanUtils.copyProperties(submission, subReq);
         submissionService.update(submission.getId(), subReq);
 
         return savedReview;
+    }
+
+    @Override
+    @Transactional
+    public SubmissionReview reviewByBoard(ReviewRequest req) {
+        Optional<Submission> subOpt = submissionService.findById(req.getSubmissionId());
+        if (subOpt.isEmpty()) {
+            throw new RuntimeException("Submission not found");
+        }
+        Submission submission = subOpt.get();
+
+        Optional<Account> reviewerOpt = accountRepository.findById(req.getReviewerId());
+        if (reviewerOpt.isEmpty()) {
+            throw new RuntimeException("Reviewer not found");
+        }
+        Account reviewer = reviewerOpt.get();
+        if (!reviewer.hasRole(SystemRoleName.EDITORIAL_BOARD_MEMBER)) {
+            throw new AccessDeniedException("Only Editorial Board Members can vote");
+        }
+
+        if (submission.getStatus() != group1.com.MangaSystemAndManagement.model.SubmissionStatus.ON_GOING) {
+            throw new RuntimeException("Submission must be in ON_GOING status for Board Voting");
+        }
+
+        boolean alreadyVoted = submissionReviewService.findAll().stream()
+            .anyMatch(r -> r.getSubmission().getId().equals(submission.getId())
+                        && r.getReviewer().getId() == reviewer.getId()
+                        && r.getStage() == group1.com.MangaSystemAndManagement.model.ReviewStage.EDITORIAL_BOARD);
+        if (alreadyVoted) {
+            throw new RuntimeException("Board member has already voted for this submission");
+        }
+
+        SubmissionReview review = new SubmissionReview();
+        review.setSubmission(submission);
+        review.setReviewer(reviewer);
+        review.setStage(group1.com.MangaSystemAndManagement.model.ReviewStage.EDITORIAL_BOARD);
+        
+        String decision = req.getDecision() != null ? req.getDecision().trim().toUpperCase() : "";
+        if (decision.equals("APPROVE")) decision = "APPROVED";
+        review.setDecision(decision);
+
+        StringBuilder commentBuilder = new StringBuilder();
+        if (req.getComment() != null && !req.getComment().isBlank()) commentBuilder.append("Notes: ").append(req.getComment());
+        review.setComment(commentBuilder.toString());
+        review.setReviewedAt(Instant.now());
+
+        group1.com.MangaSystemAndManagement.dto.request.SubmissionReviewRequest reviewReq = new group1.com.MangaSystemAndManagement.dto.request.SubmissionReviewRequest();
+        org.springframework.beans.BeanUtils.copyProperties(review, reviewReq);
+        SubmissionReview savedReview = submissionReviewService.create(reviewReq);
+
+        long approveCount = submissionReviewService.findAll().stream()
+            .filter(r -> r.getSubmission().getId().equals(submission.getId())
+                      && r.getStage() == group1.com.MangaSystemAndManagement.model.ReviewStage.EDITORIAL_BOARD
+                      && "APPROVED".equals(r.getDecision()))
+            .count();
+        
+        if (approveCount >= 3) {
+            submission.setStatus(group1.com.MangaSystemAndManagement.model.SubmissionStatus.APPROVED);
+            group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest subReq = new group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest();
+            org.springframework.beans.BeanUtils.copyProperties(submission, subReq);
+            submissionService.update(submission.getId(), subReq);
+        }
+
+        return savedReview;
+    }
+
+    @Override
+    @Transactional
+    public Submission submitToBoard(Long submissionId, Long tantouId) {
+        Optional<Submission> subOpt = submissionService.findById(submissionId);
+        if (subOpt.isEmpty()) {
+            throw new RuntimeException("Submission not found");
+        }
+        Submission submission = subOpt.get();
+
+        Optional<Account> reviewerOpt = accountRepository.findById(tantouId);
+        if (reviewerOpt.isEmpty()) {
+            throw new RuntimeException("Tantou Editor not found");
+        }
+        Account reviewer = reviewerOpt.get();
+        if (!reviewer.hasRole(SystemRoleName.TANTOU_EDITOR)) {
+            throw new AccessDeniedException("Only Tantou Editors can submit to the Board");
+        }
+
+        if (submission.getStatus() != SubmissionStatus.PENDING_BOARD_REVIEW) {
+            throw new RuntimeException("Submission must be PENDING_BOARD_REVIEW to submit to board");
+        }
+
+        submission.setStatus(group1.com.MangaSystemAndManagement.model.SubmissionStatus.ON_GOING);
+        
+        group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest subReq = new group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest();
+        org.springframework.beans.BeanUtils.copyProperties(submission, subReq);
+        return submissionService.update(submission.getId(), subReq);
     }
 
     @Override
@@ -135,7 +232,7 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
 
         submission.setTitle(req.getTitle());
         submission.setContentUrl(req.getContentUrl());
-        submission.setStatus("RESUBMITTED");
+        submission.setStatus(group1.com.MangaSystemAndManagement.model.SubmissionStatus.PENDING);
         submission.setSubmittedAt(Instant.now());
 
         group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest subReq = new group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest();
@@ -147,7 +244,7 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
     public List<Submission> listSubmissions(String status) {
         var all = submissionService.findAll();
         if (status == null || status.isBlank()) return all;
-        return all.stream().filter(s -> status.equalsIgnoreCase(s.getStatus())).toList();
+        return all.stream().filter(s -> status.equalsIgnoreCase(s.getStatus().name())).toList();
     }
 
     @Override

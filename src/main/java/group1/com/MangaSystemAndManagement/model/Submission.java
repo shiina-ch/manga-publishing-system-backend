@@ -2,6 +2,7 @@ package group1.com.MangaSystemAndManagement.model;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 @Setter
@@ -47,14 +49,16 @@ public class Submission {
     @Column(name = "ContentUrl", length = 1000)
     private String contentUrl;
 
-    @Size(max = 50)
-    @Nationalized
+    @Enumerated(EnumType.STRING)
     @Column(name = "Status", length = 50)
-    private String status;
+    private SubmissionStatus status;
 
     @ColumnDefault("getdate()")
     @Column(name = "SubmittedAt")
     private Instant submittedAt;
 
+    @JsonManagedReference("submission-files")
+    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SubmissionFile> files;
 
 }

@@ -41,11 +41,12 @@ public class MangaWorkflowController {
         }
     }
 
-    @PostMapping("/name/review")
-    public ResponseEntity<ResponseBase> reviewName(@RequestBody ReviewRequest req) {
+    @PostMapping("/name/review/tantou")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Tantou Editor reviews the submission")
+    public ResponseEntity<ResponseBase> reviewByTantou(@RequestBody ReviewRequest req) {
         try {
-            SubmissionReview savedReview = workflowService.reviewName(req);
-            return ResponseEntity.status(200).body(new ResponseBase(200, "Review recorded", savedReview));
+            SubmissionReview savedReview = workflowService.reviewByTantou(req);
+            return ResponseEntity.status(200).body(new ResponseBase(200, "Tantou Review recorded", savedReview));
         } catch (AccessDeniedException ad) {
             return ResponseEntity.status(403).body(new ResponseBase(403, ad.getMessage(), null));
         } catch (RuntimeException re) {
@@ -53,7 +54,44 @@ public class MangaWorkflowController {
             if (msg.toLowerCase().contains("not found")) {
                 return ResponseEntity.status(404).body(new ResponseBase(404, msg, null));
             }
-            return ResponseEntity.status(500).body(new ResponseBase(500, msg, null));
+            return ResponseEntity.status(400).body(new ResponseBase(400, msg, null));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new ResponseBase(500, e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/name/review/board")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Editorial Board Member votes on the submission")
+    public ResponseEntity<ResponseBase> reviewByBoard(@RequestBody ReviewRequest req) {
+        try {
+            SubmissionReview savedReview = workflowService.reviewByBoard(req);
+            return ResponseEntity.status(200).body(new ResponseBase(200, "Board Review recorded", savedReview));
+        } catch (AccessDeniedException ad) {
+            return ResponseEntity.status(403).body(new ResponseBase(403, ad.getMessage(), null));
+        } catch (RuntimeException re) {
+            String msg = re.getMessage() == null ? "" : re.getMessage();
+            if (msg.toLowerCase().contains("not found")) {
+                return ResponseEntity.status(404).body(new ResponseBase(404, msg, null));
+            }
+            return ResponseEntity.status(400).body(new ResponseBase(400, msg, null));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new ResponseBase(500, e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/name/{id}/submit-to-board")
+    public ResponseEntity<ResponseBase> submitToBoard(@PathVariable Long id, @RequestParam Long tantouId) {
+        try {
+            Submission updated = workflowService.submitToBoard(id, tantouId);
+            return ResponseEntity.status(200).body(new ResponseBase(200, "Submitted to Editorial Board", updated));
+        } catch (AccessDeniedException ad) {
+            return ResponseEntity.status(403).body(new ResponseBase(403, ad.getMessage(), null));
+        } catch (RuntimeException re) {
+            String msg = re.getMessage() == null ? "" : re.getMessage();
+            if (msg.toLowerCase().contains("not found")) {
+                return ResponseEntity.status(404).body(new ResponseBase(404, msg, null));
+            }
+            return ResponseEntity.status(400).body(new ResponseBase(400, msg, null));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ResponseBase(500, e.getMessage(), null));
         }

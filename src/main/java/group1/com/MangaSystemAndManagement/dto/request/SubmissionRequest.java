@@ -1,28 +1,34 @@
 package group1.com.MangaSystemAndManagement.dto.request;
 
-import group1.com.MangaSystemAndManagement.model.*;
-
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
+/**
+ * Request DTO để Mangaka tạo Submission (nộp file PSD).
+ *
+ * Luồng: User (accountId via path param) → Submission (title, planningId?) → SubmissionFiles
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubmissionRequest {
-    @NotNull
-    private Project project;
-    private Planning planning;
-    @NotNull
-    private Account submittedBy;
+
+    /** ID của Planning mà submission này thuộc về (optional) */
+    private Long planningId;
+
+    /** Tiêu đề submission */
     @Size(max = 255)
     private String title;
+
+    /** Ghi chú / mô tả thêm */
     @Size(max = 1000)
-    private String contentUrl;
-    @Size(max = 50)
-    private String status;
-    private Instant submittedAt;
+    private String note;
+
+    /** Danh sách file PSD / tài nguyên đính kèm (multipart) */
+    private List<MultipartFile> files;
 }

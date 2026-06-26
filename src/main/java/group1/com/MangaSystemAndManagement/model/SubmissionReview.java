@@ -33,6 +33,10 @@ public class SubmissionReview {
     @JoinColumn(name = "ReviewerId", nullable = false)
     private Account reviewer;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Stage", length = 50)
+    private ReviewStage stage;
+
     @Size(max = 50)
     @Nationalized
     @Column(name = "Decision", length = 50)

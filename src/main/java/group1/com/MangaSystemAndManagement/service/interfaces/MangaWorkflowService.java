@@ -10,7 +10,9 @@ import java.util.List;
 
 public interface MangaWorkflowService {
     Submission submitName(NameSubmissionRequest req);
-    SubmissionReview reviewName(ReviewRequest req);
+    SubmissionReview reviewByTantou(ReviewRequest req);
+    SubmissionReview reviewByBoard(ReviewRequest req);
+    Submission submitToBoard(Long submissionId, Long tantouId);
     Submission resubmitName(ResubmitRequest req);
     List<Submission> listSubmissions(String status);
     List<SubmissionReview> listReviewsForSubmission(Long submissionId);

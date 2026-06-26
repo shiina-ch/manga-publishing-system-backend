@@ -19,6 +19,7 @@ public class SubmissionReviewRequest {
     private Account reviewer;
     @Size(max = 50)
     private String decision;
+    private ReviewStage stage;
     private String comment;
     private Instant reviewedAt;
 }
