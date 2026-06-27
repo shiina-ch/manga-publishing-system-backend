@@ -16,4 +16,5 @@ public interface AccountService {
     Account getAccountById(Long accountId);
     java.util.List<Account> getAllAccounts();
     void deactivateAccount(Long accountId);
+    void activateAccount(Long accountId);
 }

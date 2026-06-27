@@ -105,4 +105,11 @@ public class AccountController {
         accountService.deactivateAccount(accountId);
         return ResponseEntity.ok(new ResponseBase(200, "Account deactivated", null));
     }
+
+    @PostMapping("/admin/accounts/{accountId}/activate")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('MANAGER')")
+    public ResponseEntity<ResponseBase> activateAccount(@PathVariable Long accountId) {
+        accountService.activateAccount(accountId);
+        return ResponseEntity.ok(new ResponseBase(200, "Account activated", null));
+    }
 }
