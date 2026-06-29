@@ -38,6 +38,7 @@ public class DataInitialized implements CommandLineRunner {
         } else {
             log.info("Bootstrap Admin creation is disabled");
         }
+        initBoardMembers();
     }
 
     private void initRoles() {
@@ -84,5 +85,31 @@ public class DataInitialized implements CommandLineRunner {
 
         accountRepository.save(adminAccount);
         log.info("Created admin account: {}", adminEmail);
+    }
+
+    private void initBoardMembers() {
+        List<SystemRole> boardRoles = systemRoleRepository.findAllByRoleNameIgnoreCase(SystemRoleName.EDITORIAL_BOARD_MEMBER.name());
+        if (boardRoles.isEmpty()) {
+            log.warn("EDITORIAL_BOARD_MEMBER role not found, skipping board members creation.");
+            return;
+        }
+        SystemRole boardRole = boardRoles.get(0);
+
+        for (int i = 1; i <= 3; i++) {
+            String email = "board" + i + "@manga.com";
+            if (accountRepository.findByEmail(email).isEmpty()) {
+                Account boardAccount = new Account();
+                boardAccount.setFirstName("Board");
+                boardAccount.setLastName("Member " + i);
+                boardAccount.setPhoneNumber("098765432" + i);
+                boardAccount.setEmail(email);
+                boardAccount.setPassword(passwordEncoder.encode("password123"));
+                boardAccount.setSystemRole(List.of(boardRole));
+                boardAccount.setStatus(AccountStatus.ACTIVE);
+
+                accountRepository.save(boardAccount);
+                log.info("Created board member account: {}", email);
+            }
+        }
     }
 }

@@ -172,14 +172,24 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
         org.springframework.beans.BeanUtils.copyProperties(review, reviewReq);
         SubmissionReview savedReview = submissionReviewService.create(reviewReq);
 
-        long approveCount = submissionReviewService.findAll().stream()
+        var boardReviews = submissionReviewService.findAll().stream()
             .filter(r -> r.getSubmission().getId().equals(submission.getId())
-                      && r.getStage() == group1.com.MangaSystemAndManagement.model.ReviewStage.EDITORIAL_BOARD
-                      && "APPROVED".equals(r.getDecision()))
-            .count();
+                      && r.getStage() == group1.com.MangaSystemAndManagement.model.ReviewStage.EDITORIAL_BOARD)
+            .toList();
+
+        long totalBoardVotes = boardReviews.size();
         
-        if (approveCount >= 3) {
-            submission.setStatus(group1.com.MangaSystemAndManagement.model.SubmissionStatus.APPROVED);
+        if (totalBoardVotes == 3) {
+            long approveCount = boardReviews.stream()
+                .filter(r -> "APPROVED".equals(r.getDecision()))
+                .count();
+
+            if (approveCount == 2 || approveCount > 2) {
+                submission.setStatus(group1.com.MangaSystemAndManagement.model.SubmissionStatus.APPROVED);
+            } else {
+                submission.setStatus(group1.com.MangaSystemAndManagement.model.SubmissionStatus.REJECTED);
+            }
+            
             group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest subReq = new group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest();
             org.springframework.beans.BeanUtils.copyProperties(submission, subReq);
             submissionService.update(submission.getId(), subReq);

@@ -34,7 +34,6 @@ public class Submission {
     private Planning planning;
 
     @NotNull
-    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "SubmittedBy", nullable = false)
     private Account submittedBy;

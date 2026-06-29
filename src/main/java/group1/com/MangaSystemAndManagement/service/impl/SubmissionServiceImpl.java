@@ -135,7 +135,7 @@ public class SubmissionServiceImpl implements SubmissionService {
 
     @Override
     public List<Submission> findAll() {
-        return repository.findAll();
+        return repository.findAllWithSubmittedBy();
     }
 
     @Override
