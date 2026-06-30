@@ -3,6 +3,7 @@ package group1.com.MangaSystemAndManagement.service.impl;
 import group1.com.MangaSystemAndManagement.dto.request.NameSubmissionRequest;
 import group1.com.MangaSystemAndManagement.dto.request.ReviewRequest;
 import group1.com.MangaSystemAndManagement.dto.request.ResubmitRequest;
+import group1.com.MangaSystemAndManagement.dto.response.SubmissionReviewResponse;
 import group1.com.MangaSystemAndManagement.model.*;
 import group1.com.MangaSystemAndManagement.repository.AccountRepository;
 import group1.com.MangaSystemAndManagement.repository.ProjectRepository;
@@ -147,8 +148,8 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
         }
 
         boolean alreadyVoted = submissionReviewService.findAll().stream()
-            .anyMatch(r -> r.getSubmission().getId().equals(submission.getId())
-                        && r.getReviewer().getId() == reviewer.getId()
+            .anyMatch(r -> submission.getId().equals(r.getSubmissionId())
+                        && reviewer.getId() == r.getReviewerId()
                         && r.getStage() == group1.com.MangaSystemAndManagement.model.ReviewStage.EDITORIAL_BOARD);
         if (alreadyVoted) {
             throw new RuntimeException("Board member has already voted for this submission");
@@ -173,7 +174,7 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
         SubmissionReview savedReview = submissionReviewService.create(reviewReq);
 
         var boardReviews = submissionReviewService.findAll().stream()
-            .filter(r -> r.getSubmission().getId().equals(submission.getId())
+            .filter(r -> submission.getId().equals(r.getSubmissionId())
                       && r.getStage() == group1.com.MangaSystemAndManagement.model.ReviewStage.EDITORIAL_BOARD)
             .toList();
 
@@ -258,8 +259,8 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
     }
 
     @Override
-    public List<SubmissionReview> listReviewsForSubmission(Long submissionId) {
+    public List<SubmissionReviewResponse> listReviewsForSubmission(Long submissionId) {
         var all = submissionReviewService.findAll();
-        return all.stream().filter(r -> r.getSubmission() != null && r.getSubmission().getId().equals(submissionId)).toList();
+        return all.stream().filter(r -> submissionId.equals(r.getSubmissionId())).toList();
     }
 }

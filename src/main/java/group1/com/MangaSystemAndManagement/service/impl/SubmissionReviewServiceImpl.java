@@ -1,5 +1,6 @@
 package group1.com.MangaSystemAndManagement.service.impl;
 import group1.com.MangaSystemAndManagement.dto.request.SubmissionReviewRequest;
+import group1.com.MangaSystemAndManagement.dto.response.SubmissionReviewResponse;
 import group1.com.MangaSystemAndManagement.model.SubmissionReview;
 import group1.com.MangaSystemAndManagement.repository.SubmissionReviewRepository;
 import group1.com.MangaSystemAndManagement.service.interfaces.SubmissionReviewService;
@@ -8,10 +9,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class SubmissionReviewServiceImpl implements SubmissionReviewService {
     private final SubmissionReviewRepository repository;
+
+    private SubmissionReviewResponse toResponse(SubmissionReview entity) {
+        SubmissionReviewResponse response = new SubmissionReviewResponse();
+        response.setId(entity.getId());
+        response.setSubmissionId(entity.getSubmission() != null ? entity.getSubmission().getId() : null);
+        response.setReviewerId(entity.getReviewer() != null ? entity.getReviewer().getId() : null);
+        response.setReviewerEmail(entity.getReviewer() != null ? entity.getReviewer().getEmail() : null);
+        response.setStage(entity.getStage());
+        response.setDecision(entity.getDecision());
+        response.setComment(entity.getComment());
+        response.setReviewedAt(entity.getReviewedAt());
+        return response;
+    }
+
     @Override
     @Transactional
     public SubmissionReview create(SubmissionReviewRequest request) {
@@ -19,14 +36,19 @@ public class SubmissionReviewServiceImpl implements SubmissionReviewService {
         org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
+
     @Override
-    public Optional<SubmissionReview> findById(Long id) {
-        return repository.findById(id);
+    public Optional<SubmissionReviewResponse> findById(Long id) {
+        return repository.findById(id).map(this::toResponse);
     }
+
     @Override
-    public List<SubmissionReview> findAll() {
-        return repository.findAll();
+    public List<SubmissionReviewResponse> findAll() {
+        return repository.findAll().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
+
     @Override
     @Transactional
     public SubmissionReview update(Long id, SubmissionReviewRequest request) {
@@ -35,6 +57,7 @@ public class SubmissionReviewServiceImpl implements SubmissionReviewService {
         org.springframework.beans.BeanUtils.copyProperties(request, entity);
         return repository.save(entity);
     }
+
     @Override
     @Transactional
     public void delete(Long id) {

@@ -1,12 +1,13 @@
 package group1.com.MangaSystemAndManagement.service.interfaces;
 import group1.com.MangaSystemAndManagement.dto.request.SubmissionReviewRequest;
+import group1.com.MangaSystemAndManagement.dto.response.SubmissionReviewResponse;
 import group1.com.MangaSystemAndManagement.model.SubmissionReview;
 import java.util.List;
 import java.util.Optional;
 public interface SubmissionReviewService {
     SubmissionReview create(SubmissionReviewRequest request);
-    Optional<SubmissionReview> findById(Long id);
-    List<SubmissionReview> findAll();
+    Optional<SubmissionReviewResponse> findById(Long id);
+    List<SubmissionReviewResponse> findAll();
     SubmissionReview update(Long id, SubmissionReviewRequest request);
     void delete(Long id);
 }

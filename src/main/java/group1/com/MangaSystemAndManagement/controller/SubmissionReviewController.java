@@ -1,5 +1,6 @@
 package group1.com.MangaSystemAndManagement.controller;
 import group1.com.MangaSystemAndManagement.dto.request.SubmissionReviewRequest;
+import group1.com.MangaSystemAndManagement.dto.response.SubmissionReviewResponse;
 import group1.com.MangaSystemAndManagement.model.SubmissionReview;
 import group1.com.MangaSystemAndManagement.service.interfaces.SubmissionReviewService;
 import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
@@ -26,7 +27,7 @@ public class SubmissionReviewController {
     @GetMapping
     public ResponseEntity<ResponseBase> findAll() {
         try {
-            List<SubmissionReview> result = service.findAll();
+            List<SubmissionReviewResponse> result = service.findAll();
             return ResponseEntity.status(200).body(new ResponseBase(200, "Success", result));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ResponseBase(500, e.getMessage(), null));
