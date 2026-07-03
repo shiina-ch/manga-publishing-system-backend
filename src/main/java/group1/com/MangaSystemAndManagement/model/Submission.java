@@ -43,6 +43,21 @@ public class Submission {
     @Column(name = "Title")
     private String title;
 
+    @Nationalized
+    @Lob
+    @Column(name = "Story")
+    private String story;
+
+    @Nationalized
+    @Lob
+    @Column(name = "CharacterDescription")
+    private String characterDescription;
+
+    @Nationalized
+    @Lob
+    @Column(name = "WorldSetting")
+    private String worldSetting;
+
     @Size(max = 1000)
     @Nationalized
     @Column(name = "ContentUrl", length = 1000)

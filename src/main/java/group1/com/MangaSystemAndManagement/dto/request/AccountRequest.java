@@ -37,4 +37,6 @@ public class AccountRequest {
     @NotBlank(message = "Requested role is required")
     private String requestedRole;
 
+    @NotBlank(message = "OTP code is required")
+    private String otpCode;
 }

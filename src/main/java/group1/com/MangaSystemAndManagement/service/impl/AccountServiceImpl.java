@@ -31,6 +31,7 @@ import group1.com.MangaSystemAndManagement.repository.SystemRoleRepository;
 import group1.com.MangaSystemAndManagement.security.service.AuthenticationService;
 import group1.com.MangaSystemAndManagement.service.interfaces.AccountService;
 import group1.com.MangaSystemAndManagement.service.interfaces.NotificationService;
+import group1.com.MangaSystemAndManagement.service.interfaces.OtpService;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -51,11 +52,17 @@ public class AccountServiceImpl implements AccountService {
     private AuthenticationService authenticationService;
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private OtpService otpService;
 
     @Override
     @Transactional
     public Map<String, Object> createAccount(AccountRequest request) {
         String normalizedEmail = normalizeEmail(request.getEmail());
+        
+        // Validate OTP
+        otpService.validateOtp(normalizedEmail, request.getOtpCode());
+        
         SystemRoleName requestedRole = parsePublicRole(request.getRequestedRole());
         if (accountRepository.findByEmailIgnoreCase(normalizedEmail).isPresent()) {
             throw new DuplicateEmailException("Email already exists");

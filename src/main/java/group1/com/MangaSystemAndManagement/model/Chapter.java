@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
 
+import java.time.Instant;
 import java.util.List;
 
 @Getter
@@ -31,6 +32,32 @@ public class Chapter {
     @Column(name = "Status", length = 50)
     private String status;
 
+    @Column(name = "Pages")
+    private Integer pages;
+
+    @Column(name = "Deadline")
+    private Instant deadline;
+
+    @Size(max = 50)
+    @Nationalized
+    @Column(name = "Priority", length = 50)
+    private String priority;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "OwnerId")
+    private Account owner;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ProjectId")
+    private Project project;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ProductionPlanId")
+    private ProductionPlan productionPlan;
+
     @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SketchPage> sketchPages;
+
+    @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Task> tasks;
 }

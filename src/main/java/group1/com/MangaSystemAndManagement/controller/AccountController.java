@@ -17,10 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 import group1.com.MangaSystemAndManagement.dto.request.AccountLoginRequest;
 import group1.com.MangaSystemAndManagement.dto.request.AccountRequest;
 import group1.com.MangaSystemAndManagement.dto.request.RejectAccountRequest;
+import group1.com.MangaSystemAndManagement.dto.request.SendOtpRequest;
 import group1.com.MangaSystemAndManagement.dto.response.AccountResponse;
 import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
 import group1.com.MangaSystemAndManagement.model.Account;
 import group1.com.MangaSystemAndManagement.service.interfaces.AccountService;
+import group1.com.MangaSystemAndManagement.service.interfaces.OtpService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,12 +34,19 @@ import lombok.RequiredArgsConstructor;
 public class AccountController {
 
     private final AccountService accountService;
+    private final OtpService otpService;
 
     @PostMapping("/auth/accounts")
     public ResponseEntity<ResponseBase> createAccount(@Valid @RequestBody AccountRequest request) {
         Map<String, Object> result = accountService.createAccount(request);
         return ResponseEntity.status(201)
                 .body(new ResponseBase(201, "Registration request submitted", result));
+    }
+
+    @PostMapping("/auth/send-otp")
+    public ResponseEntity<ResponseBase> sendOtp(@Valid @RequestBody SendOtpRequest request) {
+        otpService.generateAndSendOtp(request.getEmail());
+        return ResponseEntity.ok(new ResponseBase(200, "OTP sent successfully", null));
     }
 
     @PostMapping("/auth/login")

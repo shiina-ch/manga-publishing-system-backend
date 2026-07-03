@@ -40,5 +40,24 @@ public class Project {
     @Column(name = "CreatedAt")
     private Instant createdAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "OwnerId")
+    private Account owner;
 
+    @Column(name = "StartDate")
+    private Instant startDate;
+
+    @Column(name = "ExpectedEndDate")
+    private Instant expectedEndDate;
+
+    @Size(max = 50)
+    @Nationalized
+    @Column(name = "CurrentPhase", length = 50)
+    private String currentPhase;
+
+    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private DevelopmentPlan developmentPlan;
+
+    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private ProductionPlan productionPlan;
 }

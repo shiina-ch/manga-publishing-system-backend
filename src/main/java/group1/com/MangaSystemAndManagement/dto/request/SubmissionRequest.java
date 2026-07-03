@@ -29,6 +29,10 @@ public class SubmissionRequest {
     @Size(max = 1000)
     private String note;
 
+    private String story;
+    private String characterDescription;
+    private String worldSetting;
+
     /** Danh sách file PSD / tài nguyên đính kèm (multipart) */
     private List<MultipartFile> files;
 }

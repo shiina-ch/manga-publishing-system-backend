@@ -20,11 +20,15 @@ public class Task {
     @Column(name = "Id", nullable = false)
     private Long id;
 
-    @NotNull
     @JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "PageId", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PageId")
     private Page page;
+
+    @JsonBackReference
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ChapterId")
+    private Chapter chapter;
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
@@ -49,4 +53,18 @@ public class Task {
     @Column(name = "Deadline")
     private Instant deadline;
 
+    @Size(max = 50)
+    @Nationalized
+    @Column(name = "TaskType", length = 50)
+    private String taskType;
+
+    @Size(max = 50)
+    @Nationalized
+    @Column(name = "Priority", length = 50)
+    private String priority;
+
+    @Nationalized
+    @Lob
+    @Column(name = "ReviewResult")
+    private String reviewResult;
 }
