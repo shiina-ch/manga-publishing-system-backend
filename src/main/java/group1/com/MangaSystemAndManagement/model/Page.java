@@ -1,7 +1,7 @@
 package group1.com.MangaSystemAndManagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -19,9 +19,9 @@ public class Page {
     private Long id;
 
     @NotNull
-    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ChapterId", nullable = false)
+    @JsonIgnore
     private Chapter chapter;
 
     @Column(name = "PageNumber")

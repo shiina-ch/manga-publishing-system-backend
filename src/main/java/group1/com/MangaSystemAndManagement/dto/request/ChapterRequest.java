@@ -17,5 +17,4 @@ public class ChapterRequest {
     private String title;
     @Size(max = 50)
     private String status;
-    private List<SketchPage> sketchPages;
 }

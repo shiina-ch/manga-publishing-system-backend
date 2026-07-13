@@ -1,15 +1,16 @@
 package group1.com.MangaSystemAndManagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Lưu trữ thông tin file PSD / tài nguyên đính kèm của một Submission.
- * Quan hệ: Submission (1) ←→ (N) SubmissionFile
+ * A single PSD / asset file attached to a {@link Submission}.
+ * Carries an explicit {@link FileType} discriminator and ordering to allow
+ * round-by-round comparison without walking the entire submission chain.
  */
 @Entity
 @Getter
@@ -22,22 +23,31 @@ public class SubmissionFile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** Tên file gốc do Mangaka upload (e.g. chapter01.psd) */
+    /** Original filename supplied by the uploader (e.g. chapter01.psd). */
     private String originalName;
 
-    /** URL công khai để truy cập file (e.g. /uploads/uuid.psd) */
+    /** Public URL where the file is served (e.g. /uploads/&lt;uuid&gt;.psd). */
     @Column(length = 1000)
     private String filePath;
 
-    /** Kích thước file tính theo byte */
+    /** File size in bytes. */
     private Long fileSize;
 
-    /** MIME type (e.g. image/vnd.adobe.photoshop, application/octet-stream) */
+    /** MIME type (e.g. image/vnd.adobe.photoshop, application/octet-stream). */
     private String contentType;
 
-    /** Submission mà file này thuộc về */
-    @JsonBackReference("submission-files")
+    /** Which round this file belongs to – see {@link FileType}. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "file_type", length = 50)
+    private FileType fileType;
+
+    /** Display order within the parent submission (0 = first / cover). */
+    @Column(name = "file_order")
+    private Integer fileOrder;
+
+    /** Submission that owns this file. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "submission_id", nullable = false)
+    @JsonIgnore
     private Submission submission;
 }

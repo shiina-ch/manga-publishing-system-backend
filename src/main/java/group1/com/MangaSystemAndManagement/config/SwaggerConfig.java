@@ -13,9 +13,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
     info = @Info(
-        title = "SBA Assignment API",
+        title = "SWP391 Group1 API",
         version = "1.0",
-        description = "API Documentation for SBA Assignment"
+        description = "API Documentation for Project SWP391"
     )
 )
 @SecurityScheme(

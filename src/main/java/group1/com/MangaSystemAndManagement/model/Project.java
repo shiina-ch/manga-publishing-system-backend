@@ -1,5 +1,6 @@
 package group1.com.MangaSystemAndManagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -42,7 +43,18 @@ public class Project {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "OwnerId")
+    @JsonIgnore
     private Account owner;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TantouId")
+    @JsonIgnore
+    private Account tantou;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MangakaId")
+    @JsonIgnore
+    private Account mangaka;
 
     @Column(name = "StartDate")
     private Instant startDate;
@@ -55,9 +67,32 @@ public class Project {
     @Column(name = "CurrentPhase", length = 50)
     private String currentPhase;
 
+    // --- Production Workflow Fields ---
+
+    @Size(max = 100)
+    @Nationalized
+    @Column(name = "genre", length = 100)
+    private String genre;
+
+    @Size(max = 100)
+    @Nationalized
+    @Column(name = "target_audience", length = 100)
+    private String targetAudience;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "format", length = 50)
+    private ProjectFormat format;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "project_status", length = 50)
+    private ProjectWorkflowStatus projectWorkflowStatus = ProjectWorkflowStatus.DRAFT;
+
     @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private DevelopmentPlan developmentPlan;
 
     @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ProductionPlan productionPlan;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private java.util.List<Asset> assets;
 }

@@ -17,4 +17,5 @@ public interface AccountService {
     java.util.List<Account> getAllAccounts();
     void deactivateAccount(Long accountId);
     void activateAccount(Long accountId);
+    group1.com.MangaSystemAndManagement.dto.response.AccountSearchResponse searchByEmail(String email);
 }

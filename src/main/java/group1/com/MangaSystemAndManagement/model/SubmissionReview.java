@@ -1,7 +1,7 @@
 package group1.com.MangaSystemAndManagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -22,15 +22,15 @@ public class SubmissionReview {
     private Long id;
 
     @NotNull
-    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "SubmissionId", nullable = false)
+    @JsonIgnore
     private Submission submission;
 
     @NotNull
-    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ReviewerId", nullable = false)
+    @JsonIgnore
     private Account reviewer;
 
     @Enumerated(EnumType.STRING)

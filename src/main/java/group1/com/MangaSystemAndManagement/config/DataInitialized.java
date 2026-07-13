@@ -1,6 +1,5 @@
 package group1.com.MangaSystemAndManagement.config;
 
-import group1.com.MangaSystemAndManagement.config.properties.BootstrapAdminProperties;
 import group1.com.MangaSystemAndManagement.model.SystemRole;
 import group1.com.MangaSystemAndManagement.model.SystemRoleName;
 import group1.com.MangaSystemAndManagement.model.AccountStatus;
@@ -13,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import group1.com.MangaSystemAndManagement.model.Account;
 import group1.com.MangaSystemAndManagement.repository.*;
+import group1.com.MangaSystemAndManagement.model.ProjectRole;
 import jakarta.annotation.Nullable;
 import java.util.List;
 
@@ -25,7 +25,6 @@ public class DataInitialized implements CommandLineRunner {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final SystemRoleNormalizationService systemRoleNormalizationService;
-    private final BootstrapAdminProperties bootstrapAdminProperties;
 
     static final List<SystemRoleName> DEFAULT_ROLES = List.of(SystemRoleName.values());
 
@@ -33,12 +32,9 @@ public class DataInitialized implements CommandLineRunner {
     public void run(@Nullable String... args) {
         systemRoleNormalizationService.normalizeLegacyRoles();
         initRoles();
-        if (bootstrapAdminProperties.enabled()) {
-            initAdminAccount();
-        } else {
-            log.info("Bootstrap Admin creation is disabled");
-        }
+        initAdminAccount();
         initBoardMembers();
+        initWorkflowMembers();
     }
 
     private void initRoles() {
@@ -56,7 +52,7 @@ public class DataInitialized implements CommandLineRunner {
     }
 
     private void initAdminAccount() {
-        String adminEmail = bootstrapAdminProperties.email();
+        String adminEmail = "admin@gmail.com";
         List<SystemRole> adminRoles = systemRoleRepository.findAllByRoleNameIgnoreCase(SystemRoleName.ADMIN.name());
         if (adminRoles.isEmpty()) {
             log.warn("ADMIN role not found, skipping admin account creation.");
@@ -79,7 +75,7 @@ public class DataInitialized implements CommandLineRunner {
         // Placeholder metadata required by the current Account schema.
         adminAccount.setPhoneNumber("0123456789");
         adminAccount.setEmail(adminEmail);
-        adminAccount.setPassword(passwordEncoder.encode(bootstrapAdminProperties.password()));
+        adminAccount.setPassword(passwordEncoder.encode("admin123"));
         adminAccount.setSystemRole(List.of(adminRole));
         adminAccount.setStatus(AccountStatus.ACTIVE);
 
@@ -88,7 +84,8 @@ public class DataInitialized implements CommandLineRunner {
     }
 
     private void initBoardMembers() {
-        List<SystemRole> boardRoles = systemRoleRepository.findAllByRoleNameIgnoreCase(SystemRoleName.EDITORIAL_BOARD_MEMBER.name());
+        List<SystemRole> boardRoles = systemRoleRepository
+                .findAllByRoleNameIgnoreCase(SystemRoleName.EDITORIAL_BOARD_MEMBER.name());
         if (boardRoles.isEmpty()) {
             log.warn("EDITORIAL_BOARD_MEMBER role not found, skipping board members creation.");
             return;
@@ -109,6 +106,66 @@ public class DataInitialized implements CommandLineRunner {
 
                 accountRepository.save(boardAccount);
                 log.info("Created board member account: {}", email);
+            }
+        }
+    }
+
+    private void initWorkflowMembers() {
+        // 1. Create Tantou
+        List<SystemRole> tantouRoles = systemRoleRepository
+                .findAllByRoleNameIgnoreCase(SystemRoleName.TANTOU_EDITOR.name());
+        if (!tantouRoles.isEmpty()) {
+            String email = "tantou@manga.com";
+            if (accountRepository.findByEmail(email).isEmpty()) {
+                Account account = new Account();
+                account.setFirstName("Tantou");
+                account.setLastName("Editor");
+                account.setPhoneNumber("0900000001");
+                account.setEmail(email);
+                account.setPassword(passwordEncoder.encode("password123"));
+                account.setSystemRole(List.of(tantouRoles.get(0)));
+                account.setStatus(AccountStatus.ACTIVE);
+                accountRepository.save(account);
+                log.info("Created Tantou account: {}", email);
+            }
+        }
+
+        // 2. Create Mangaka
+        List<SystemRole> mangakaRoles = systemRoleRepository.findAllByRoleNameIgnoreCase(SystemRoleName.MANGAKA.name());
+        if (!mangakaRoles.isEmpty()) {
+            String email = "mangaka@manga.com";
+            if (accountRepository.findByEmail(email).isEmpty()) {
+                Account account = new Account();
+                account.setFirstName("Master");
+                account.setLastName("Mangaka");
+                account.setPhoneNumber("0900000002");
+                account.setEmail(email);
+                account.setPassword(passwordEncoder.encode("password123"));
+                account.setSystemRole(List.of(mangakaRoles.get(0)));
+                account.setStatus(AccountStatus.ACTIVE);
+                accountRepository.save(account);
+                log.info("Created Mangaka account: {}", email);
+            }
+        }
+
+        // 3. Create Assistants
+        List<SystemRole> assistantRoles = systemRoleRepository
+                .findAllByRoleNameIgnoreCase(SystemRoleName.ASSISTANT.name());
+        if (!assistantRoles.isEmpty()) {
+            for (int i = 1; i <= 3; i++) {
+                String email = "assistant" + i + "@manga.com";
+                if (accountRepository.findByEmail(email).isEmpty()) {
+                    Account account = new Account();
+                    account.setFirstName("Assistant");
+                    account.setLastName("Number " + i);
+                    account.setPhoneNumber("090000001" + i);
+                    account.setEmail(email);
+                    account.setPassword(passwordEncoder.encode("password123"));
+                    account.setSystemRole(List.of(assistantRoles.get(0)));
+                    account.setStatus(AccountStatus.ACTIVE);
+                    accountRepository.save(account);
+                    log.info("Created Assistant account: {}", email);
+                }
             }
         }
     }

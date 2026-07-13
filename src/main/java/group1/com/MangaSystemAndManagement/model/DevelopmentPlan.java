@@ -1,5 +1,6 @@
 package group1.com.MangaSystemAndManagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,7 @@ public class DevelopmentPlan {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ProjectId", nullable = false, unique = true)
+    @JsonIgnore
     private Project project;
 
     @Nationalized

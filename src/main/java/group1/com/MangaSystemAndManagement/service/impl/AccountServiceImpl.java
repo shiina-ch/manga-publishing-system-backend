@@ -199,6 +199,14 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(account);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public group1.com.MangaSystemAndManagement.dto.response.AccountSearchResponse searchByEmail(String email) {
+        Account account = accountRepository.findByEmailIgnoreCase(normalizeEmail(email))
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found with email: " + email));
+        return group1.com.MangaSystemAndManagement.dto.response.AccountSearchResponse.from(account);
+    }
+
     private String normalizeEmail(String email) {
         return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
     }

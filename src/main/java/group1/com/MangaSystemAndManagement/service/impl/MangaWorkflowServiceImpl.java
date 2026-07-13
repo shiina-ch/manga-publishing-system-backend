@@ -8,7 +8,6 @@ import group1.com.MangaSystemAndManagement.model.*;
 import group1.com.MangaSystemAndManagement.repository.AccountRepository;
 import group1.com.MangaSystemAndManagement.repository.ProjectRepository;
 import group1.com.MangaSystemAndManagement.repository.PlanningRepository;
-import group1.com.MangaSystemAndManagement.repository.SubmissionRepository;
 import group1.com.MangaSystemAndManagement.service.interfaces.MangaWorkflowService;
 import group1.com.MangaSystemAndManagement.service.interfaces.SubmissionReviewService;
 import group1.com.MangaSystemAndManagement.service.interfaces.SubmissionService;
@@ -27,7 +26,7 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
 
     private final SubmissionService submissionService;
     private final SubmissionReviewService submissionReviewService;
-    private final SubmissionRepository submissionRepository;
+    private final group1.com.MangaSystemAndManagement.repository.SubmissionRepository submissionRepository;
     private final AccountRepository accountRepository;
     private final ProjectRepository projectRepository;
     private final PlanningRepository planningRepository;
@@ -113,7 +112,7 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
         SubmissionReview savedReview = submissionReviewService.create(reviewReq);
 
         if (decision.equals("APPROVED")) {
-            submission.setStatus(group1.com.MangaSystemAndManagement.model.SubmissionStatus.PENDING_BOARD_REVIEW);
+            submission.setStatus(SubmissionStatus.ON_GOING);
         } else {
             submission.setStatus(group1.com.MangaSystemAndManagement.model.SubmissionStatus.REJECTED);
         }
@@ -143,7 +142,7 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
             throw new AccessDeniedException("Only Editorial Board Members can vote");
         }
 
-        if (submission.getStatus() != group1.com.MangaSystemAndManagement.model.SubmissionStatus.ON_GOING) {
+        if (submission.getStatus() != SubmissionStatus.PENDING_BOARD_REVIEW) {
             throw new RuntimeException("Submission must be in ON_GOING status for Board Voting");
         }
 
@@ -185,8 +184,19 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
                 .filter(r -> "APPROVED".equals(r.getDecision()))
                 .count();
 
-            if (approveCount == 2 || approveCount > 2) {
+            if (approveCount >= 2) {
                 submission.setStatus(group1.com.MangaSystemAndManagement.model.SubmissionStatus.APPROVED);
+
+                // Auto-create Project
+                Project project = new Project();
+                project.setTitle(submission.getTitle());
+                project.setDescription(submission.getContentUrl());
+                project.setStatus("ACTIVE");
+                project = projectRepository.save(project);
+                submission.setProject(project);
+
+                // Project is created successfully. No need to assign Board Members to the project.
+
             } else {
                 submission.setStatus(group1.com.MangaSystemAndManagement.model.SubmissionStatus.REJECTED);
             }
@@ -217,11 +227,11 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
             throw new AccessDeniedException("Only Tantou Editors can submit to the Board");
         }
 
-        if (submission.getStatus() != SubmissionStatus.PENDING_BOARD_REVIEW) {
-            throw new RuntimeException("Submission must be PENDING_BOARD_REVIEW to submit to board");
+        if (submission.getStatus() != SubmissionStatus.ON_GOING) {
+            throw new RuntimeException("Submission must be ON-GOING to submit to board");
         }
 
-        submission.setStatus(group1.com.MangaSystemAndManagement.model.SubmissionStatus.ON_GOING);
+        submission.setStatus(SubmissionStatus.PENDING_BOARD_REVIEW);
         
         group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest subReq = new group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest();
         org.springframework.beans.BeanUtils.copyProperties(submission, subReq);
@@ -262,5 +272,47 @@ public class MangaWorkflowServiceImpl implements MangaWorkflowService {
     public List<SubmissionReviewResponse> listReviewsForSubmission(Long submissionId) {
         var all = submissionReviewService.findAll();
         return all.stream().filter(r -> submissionId.equals(r.getSubmissionId())).toList();
+    }
+
+    @Override
+    @Transactional
+    public void assignTantouToProject(Long projectId, Long tantouId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        Account tantou = accountRepository.findById(tantouId)
+                .orElseThrow(() -> new RuntimeException("Tantou Editor not found"));
+
+        if (!tantou.hasRole(SystemRoleName.TANTOU_EDITOR)) {
+            throw new AccessDeniedException("The specified user is not a Tantou Editor");
+        }
+        
+        if (project.getTantou() != null) {
+            throw new RuntimeException("This project already has a Tantou assigned");
+        }
+
+        project.setTantou(tantou);
+        projectRepository.save(project);
+    }
+
+    @Override
+    @Transactional
+    public void assignMangakaToProject(Long projectId, Long mangakaId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        Account mangaka = accountRepository.findById(mangakaId)
+                .orElseThrow(() -> new RuntimeException("Mangaka not found"));
+
+        if (!mangaka.hasRole(SystemRoleName.MANGAKA)) {
+            throw new AccessDeniedException("The specified user is not a Mangaka");
+        }
+
+        if (project.getMangaka() != null) {
+            throw new RuntimeException("This project already has a Mangaka assigned");
+        }
+
+        project.setMangaka(mangaka);
+        projectRepository.save(project);
     }
 }

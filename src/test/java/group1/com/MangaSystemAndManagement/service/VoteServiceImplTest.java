@@ -1,18 +1,11 @@
 package group1.com.MangaSystemAndManagement.service;
 
-import group1.com.MangaSystemAndManagement.dto.request.VoteRequest;
-import group1.com.MangaSystemAndManagement.dto.response.VoteResponse;
 import group1.com.MangaSystemAndManagement.dto.response.VoteSummaryResponse;
 import group1.com.MangaSystemAndManagement.model.Account;
 import group1.com.MangaSystemAndManagement.model.SubmissionReview;
 import group1.com.MangaSystemAndManagement.model.SystemRole;
-import group1.com.MangaSystemAndManagement.model.Vote;
-import group1.com.MangaSystemAndManagement.model.VoteResult;
-import group1.com.MangaSystemAndManagement.model.VoteValue;
 import group1.com.MangaSystemAndManagement.repository.AccountRepository;
 import group1.com.MangaSystemAndManagement.repository.SubmissionReviewRepository;
-import group1.com.MangaSystemAndManagement.repository.VoteRepository;
-import group1.com.MangaSystemAndManagement.service.impl.VoteServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

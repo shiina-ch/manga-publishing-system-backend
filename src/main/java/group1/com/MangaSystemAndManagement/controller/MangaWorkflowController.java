@@ -134,4 +134,42 @@ public class MangaWorkflowController {
             return ResponseEntity.status(500).body(new ResponseBase(500, e.getMessage(), null));
         }
     }
+
+    @PostMapping("/project/{projectId}/assign-tantou/{tantouId}")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Assign Tantor into Project")
+    public ResponseEntity<ResponseBase> assignTantouToProject(@PathVariable Long projectId, @PathVariable Long tantouId) {
+        try {
+            workflowService.assignTantouToProject(projectId, tantouId);
+            return ResponseEntity.ok(new ResponseBase(200, "Tantou Editor successfully assigned to the project", null));
+        } catch (AccessDeniedException ad) {
+            return ResponseEntity.status(403).body(new ResponseBase(403, ad.getMessage(), null));
+        } catch (RuntimeException re) {
+            String msg = re.getMessage() == null ? "" : re.getMessage();
+            if (msg.toLowerCase().contains("not found")) {
+                return ResponseEntity.status(404).body(new ResponseBase(404, msg, null));
+            }
+            return ResponseEntity.status(400).body(new ResponseBase(400, msg, null));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new ResponseBase(500, e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/project/{projectId}/assign-mangaka/{mangakaId}")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Assign a Mangaka to a Project")
+    public ResponseEntity<ResponseBase> assignMangakaToProject(@PathVariable Long projectId, @PathVariable Long mangakaId) {
+        try {
+            workflowService.assignMangakaToProject(projectId, mangakaId);
+            return ResponseEntity.ok(new ResponseBase(200, "Mangaka successfully assigned to the project", null));
+        } catch (AccessDeniedException ad) {
+            return ResponseEntity.status(403).body(new ResponseBase(403, ad.getMessage(), null));
+        } catch (RuntimeException re) {
+            String msg = re.getMessage() == null ? "" : re.getMessage();
+            if (msg.toLowerCase().contains("not found")) {
+                return ResponseEntity.status(404).body(new ResponseBase(404, msg, null));
+            }
+            return ResponseEntity.status(400).body(new ResponseBase(400, msg, null));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new ResponseBase(500, e.getMessage(), null));
+        }
+    }
 }

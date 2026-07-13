@@ -17,4 +17,6 @@ public interface MangaWorkflowService {
     Submission resubmitName(ResubmitRequest req);
     List<Submission> listSubmissions(String status);
     List<SubmissionReviewResponse> listReviewsForSubmission(Long submissionId);
+    void assignTantouToProject(Long projectId, Long tantouId);
+    void assignMangakaToProject(Long projectId, Long mangakaId);
 }

@@ -45,6 +45,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return response(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", ex.getMessage(), request, null);
     }
 
+    /**
+     * Workflow-rule violations are an HTTP 400 – the request was well-formed
+     * but it would break a business invariant (e.g. creating a SubTask whose
+     * deadline exceeds the parent Task's deadline, or submitting a polymorphic
+     * submission without disambiguating taskId/subTaskId).
+     *
+     * <p>Without this handler the exception falls through to the generic
+     * {@code Exception} handler below and surfaces as a 500 with the unhelpful
+     * "An unexpected error occurred" body – which is exactly what callers were
+     * seeing when they submitted malformed submissions via Swagger.</p>
+     */
+    @ExceptionHandler(WorkflowRuleViolationException.class)
+    public ResponseEntity<ErrorResponse> handleWorkflowRuleViolation(WorkflowRuleViolationException ex,
+                                                                    WebRequest request) {
+        return response(HttpStatus.BAD_REQUEST, "WORKFLOW_RULE_VIOLATION", ex.getMessage(), request, null);
+    }
+
     @ExceptionHandler({InvalidCredentialsException.class, BadCredentialsException.class})
     public ResponseEntity<ErrorResponse> handleInvalidCredentials(RuntimeException ex, WebRequest request) {
         return response(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", "Invalid email or password", request, null);

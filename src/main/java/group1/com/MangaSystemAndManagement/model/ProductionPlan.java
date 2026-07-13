@@ -1,11 +1,13 @@
 package group1.com.MangaSystemAndManagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -20,6 +22,7 @@ public class ProductionPlan {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ProjectId", nullable = false, unique = true)
+    @JsonIgnore
     private Project project;
 
     @Nationalized
@@ -65,6 +68,28 @@ public class ProductionPlan {
     @Nationalized
     @Column(name = "ApprovalStatus", length = 50)
     private String approvalStatus;
+
+    // --- Production Workflow Fields ---
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
+
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
+    @Column(name = "total_volume_target")
+    private Integer totalVolumeTarget;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "plan_status", length = 50)
+    private PlanStatus planStatus = PlanStatus.PLANNING;
+
+    /**
+     * Rolled-up completion across all chapters of this Plan (0–100).
+     * Recomputed every time a chapter transitions to COMPLETED/PUBLISHED.
+     */
+    @Column(name = "completion_percentage")
+    private Integer completionPercentage = 0;
 
     @OneToMany(mappedBy = "productionPlan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chapter> chapters;

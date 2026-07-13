@@ -1,13 +1,14 @@
 package group1.com.MangaSystemAndManagement.service.interfaces;
 
 
+import group1.com.MangaSystemAndManagement.dto.request.SystemRoleRequest;
 import group1.com.MangaSystemAndManagement.model.SystemRole;
 import java.util.List;
 import java.util.Optional;
 
 public interface SystemRoleService {
 
-        SystemRole create(group1.com.MangaSystemAndManagement.dto.request.SystemRoleRequest request);
+        SystemRole create(SystemRoleRequest request);
 
         Optional<SystemRole> findById(Long id);
 

@@ -121,4 +121,10 @@ public class AccountController {
         accountService.activateAccount(accountId);
         return ResponseEntity.ok(new ResponseBase(200, "Account activated", null));
     }
+
+    @GetMapping("/accounts/search")
+    public ResponseEntity<ResponseBase> searchAccountByEmail(@RequestParam String email) {
+        group1.com.MangaSystemAndManagement.dto.response.AccountSearchResponse account = accountService.searchByEmail(email);
+        return ResponseEntity.ok(new ResponseBase(200, "Account retrieved", account));
+    }
 }

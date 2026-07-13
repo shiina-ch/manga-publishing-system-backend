@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -27,10 +28,21 @@ public class Chapter {
     @Column(name = "Title")
     private String title;
 
-    @Size(max = 50)
-    @Nationalized
+    @Enumerated(EnumType.STRING)
     @Column(name = "Status", length = 50)
-    private String status;
+    private ChapterStatus chapterStatus;
+
+    @Column(name = "TargetPageCount")
+    private Integer targetPageCount;
+
+    @Column(name = "StartDate")
+    private LocalDate startDate;
+
+    @Column(name = "EndDate")
+    private LocalDate endDate;
+
+    @Column(name = "PublishDate")
+    private LocalDate publishDate;
 
     @Column(name = "Pages")
     private Integer pages;
@@ -55,8 +67,6 @@ public class Chapter {
     @JoinColumn(name = "ProductionPlanId")
     private ProductionPlan productionPlan;
 
-    @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SketchPage> sketchPages;
 
     @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
