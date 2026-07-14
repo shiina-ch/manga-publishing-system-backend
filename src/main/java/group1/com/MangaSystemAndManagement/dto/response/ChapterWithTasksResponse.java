@@ -16,5 +16,5 @@ public class ChapterWithTasksResponse {
     private Integer targetPageCount;
     private LocalDate publishDate;
     private ChapterStatus chapterStatus;
-    private List<TaskResponse> tasks;
+    private List<TaskWithSubTasksResponse> tasks;
 }

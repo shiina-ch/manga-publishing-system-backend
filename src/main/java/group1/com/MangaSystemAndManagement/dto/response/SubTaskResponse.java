@@ -9,21 +9,13 @@ import lombok.Setter;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
-/**
- * Wire-format representation of a {@link SubTask}.
- *
- * <p>The {@code isOverdue}, {@code deadlineInstant} and any "current submission"
- * fields are transient – they are recomputed on the fly so that clients always
- * see an up-to-date picture without us having to schedule a cron that flips
- * a stored boolean.</p>
- */
 @Getter
 @Setter
 public class SubTaskResponse {
     private Long id;
     private Long taskId;
-    private String taskTitle;
     private Long assigneeId;
     private String assigneeName;
     private String title;
@@ -32,33 +24,32 @@ public class SubTaskResponse {
     private SubTaskWorkflowStatus subtaskStatus;
     private LocalDate deadlineDate;
     private LocalTime deadlineTime;
-    private Instant deadlineInstant;
-    private boolean overdue;
-    private Integer currentSubmissionVersion;
-    private Long currentSubmissionId;
-    private String currentSubmissionStatus;
     private Instant createdAt;
     private Instant updatedAt;
+    private List<SubmissionFileResponse> submittedFiles;
 
-    public static SubTaskResponse from(SubTask s) {
+    /**
+     * Map a {@link SubTask} into this DTO. Intentionally leaves
+     * {@link #submittedFiles} untouched – callers that need the full file
+     * list should populate it explicitly to avoid an N+1 query when the
+     * SubTask list is large.
+     */
+    public static SubTaskResponse from(SubTask st) {
         SubTaskResponse r = new SubTaskResponse();
-        r.id = s.getId();
-        r.taskId = s.getTask() != null ? s.getTask().getId() : null;
-        r.taskTitle = s.getTask() != null ? s.getTask().getTitle() : null;
-        r.assigneeId = s.getAssignee() != null ? s.getAssignee().getId() : null;
-        if (s.getAssignee() != null) {
-            r.assigneeName = s.getAssignee().getFirstName() + " " + s.getAssignee().getLastName();
+        r.id = st.getId();
+        r.taskId = st.getTask() != null ? st.getTask().getId() : null;
+        if (st.getAssignee() != null) {
+            r.assigneeId = st.getAssignee().getId();
+            r.assigneeName = st.getAssignee().getFirstName() + " " + st.getAssignee().getLastName();
         }
-        r.title = s.getTitle();
-        r.description = s.getDescription();
-        r.productionTaskType = s.getProductionTaskType();
-        r.subtaskStatus = s.getSubtaskStatus();
-        r.deadlineDate = s.getDeadlineDate();
-        r.deadlineTime = s.getDeadlineTime();
-        r.deadlineInstant = s.getDeadlineInstant();
-        r.overdue = s.isOverdue();
-        r.createdAt = s.getCreatedAt();
-        r.updatedAt = s.getUpdatedAt();
+        r.title = st.getTitle();
+        r.description = st.getDescription();
+        r.productionTaskType = st.getProductionTaskType();
+        r.subtaskStatus = st.getSubtaskStatus();
+        r.deadlineDate = st.getDeadlineDate();
+        r.deadlineTime = st.getDeadlineTime();
+        r.createdAt = st.getCreatedAt();
+        r.updatedAt = st.getUpdatedAt();
         return r;
     }
 }

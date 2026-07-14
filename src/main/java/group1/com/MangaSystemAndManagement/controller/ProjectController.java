@@ -1,11 +1,15 @@
 package group1.com.MangaSystemAndManagement.controller;
+import group1.com.MangaSystemAndManagement.dto.request.AssignTantouRequest;
 import group1.com.MangaSystemAndManagement.dto.request.ProjectRequest;
 import group1.com.MangaSystemAndManagement.model.Project;
 import group1.com.MangaSystemAndManagement.service.interfaces.ProjectService;
 import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @RestController
@@ -57,6 +61,27 @@ public class ProjectController {
             service.delete(id);
             return ResponseEntity.status(200).body(new ResponseBase(200, "Deleted successfully", null));
         } catch (Exception e) {
+            return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
+        }
+    }
+
+    /**
+     * Assign a Tantō (editor-in-charge) to a project.
+     * Body: { "tantouId": <accountId> }
+     */
+    @PostMapping("/{projectId}/tantou")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('MANAGER') or hasAuthority('TANTOU_EDITOR')")
+    @Operation(summary = "Assign Tantō to a project")
+    public ResponseEntity<ResponseBase> assignTantou(
+            @PathVariable Long projectId,
+            @Valid @RequestBody AssignTantouRequest request) {
+        try {
+            Project result = service.assignTantou(projectId, request.getTantouId());
+            return ResponseEntity.status(200)
+                    .body(new ResponseBase(200, "Tantō assigned successfully", result));
+        } catch (org.springframework.security.access.AccessDeniedException e) {
+            return ResponseEntity.status(403).body(new ResponseBase(403, e.getMessage(), null));
+        } catch (RuntimeException e) {
             return ResponseEntity.status(409).body(new ResponseBase(409, e.getMessage(), null));
         }
     }

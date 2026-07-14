@@ -593,12 +593,12 @@ public class SubmissionServiceImpl implements SubmissionService {
         submission.setSubmissionType(SubmissionType.TASK_LEVEL);
         submission.setSubmittedAt(Instant.now());
 
-        if (request.getPlanningId() != null) {
-            Planning planning = planningRepository.findById(request.getPlanningId())
-                    .orElseThrow(() -> new RuntimeException(
-                            "Planning not found with id " + request.getPlanningId()));
-            submission.setPlanning(planning);
-        }
+//        if (request.getPlanningId() != null) {
+//            Planning planning = planningRepository.findById(request.getPlanningId())
+//                    .orElseThrow(() -> new RuntimeException(
+//                            "Planning not found with id " + request.getPlanningId()));
+//            submission.setPlanning(planning);
+//        }
 
         submission = submissionRepository.save(submission);
 

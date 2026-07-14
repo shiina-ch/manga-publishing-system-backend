@@ -19,7 +19,7 @@ import java.util.List;
 public class SubmissionRequest {
 
     /** ID của Planning mà submission này thuộc về (optional) */
-    private Long planningId;
+//    private Long plannin
 
     /** Tiêu đề submission */
     @Size(max = 255)

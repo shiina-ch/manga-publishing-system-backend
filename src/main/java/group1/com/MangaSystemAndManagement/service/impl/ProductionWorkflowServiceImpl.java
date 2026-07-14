@@ -24,6 +24,7 @@ public class ProductionWorkflowServiceImpl implements ProductionWorkflowService 
     private final ProductionPlanRepository productionPlanRepository;
     private final ChapterRepository chapterRepository;
     private final TaskRepository taskRepository;
+    private final SubTaskRepository subTaskRepository;
     private final FeedbackRepository feedbackRepository;
     private final AssetRepository assetRepository;
     private final AccountRepository accountRepository;
@@ -114,7 +115,9 @@ public class ProductionWorkflowServiceImpl implements ProductionWorkflowService 
             cr.setChapterStatus(c.getChapterStatus());
 
             List<Task> tasks = taskRepository.findByChapterId(c.getId());
-            List<TaskResponse> taskResponses = tasks.stream().map(this::mapToTaskResponse).collect(Collectors.toList());
+            List<TaskWithSubTasksResponse> taskResponses = tasks.stream()
+                    .map(this::mapToTaskWithSubTasksResponse)
+                    .collect(Collectors.toList());
             cr.setTasks(taskResponses);
 
             return cr;
@@ -189,7 +192,9 @@ public class ProductionWorkflowServiceImpl implements ProductionWorkflowService 
         response.setChapterStatus(chapter.getChapterStatus());
 
         List<Task> tasks = taskRepository.findByChapterId(chapter.getId());
-        response.setTasks(tasks.stream().map(this::mapToTaskResponse).collect(Collectors.toList()));
+        response.setTasks(tasks.stream()
+                .map(this::mapToTaskWithSubTasksResponse)
+                .collect(Collectors.toList()));
 
         return response;
     }
@@ -411,6 +416,80 @@ public class ProductionWorkflowServiceImpl implements ProductionWorkflowService 
         return r;
     }
 
+    /**
+     * Map a Task into the richer response that includes its SubTasks and the
+     * files already submitted against each SubTask. Used by the dashboard and
+     * chapter endpoints that need the full task tree.
+     */
+    private TaskWithSubTasksResponse mapToTaskWithSubTasksResponse(Task t) {
+        TaskWithSubTasksResponse r = new TaskWithSubTasksResponse();
+        BeanUtils.copyProperties(t, r);
+        if (t.getAssignee() != null) {
+            r.setAssigneeId(t.getAssignee().getId());
+            r.setAssigneeName(t.getAssignee().getFirstName() + " " + t.getAssignee().getLastName());
+        }
+
+        List<SubTask> subTasks = subTaskRepository.findByTaskId(t.getId());
+        List<SubTaskResponse> subTaskResponses = subTasks.stream()
+                .map(this::mapToSubTaskResponse)
+                .collect(Collectors.toList());
+        r.setSubTasks(subTaskResponses);
+        return r;
+    }
+
+    private SubTaskResponse mapToSubTaskResponse(SubTask st) {
+        SubTaskResponse r = new SubTaskResponse();
+        r.setId(st.getId());
+        r.setTaskId(st.getTask() != null ? st.getTask().getId() : null);
+        if (st.getAssignee() != null) {
+            r.setAssigneeId(st.getAssignee().getId());
+            r.setAssigneeName(st.getAssignee().getFirstName() + " " + st.getAssignee().getLastName());
+        }
+        r.setTitle(st.getTitle());
+        r.setDescription(st.getDescription());
+        r.setProductionTaskType(st.getProductionTaskType());
+        r.setSubtaskStatus(st.getSubtaskStatus());
+        r.setDeadlineDate(st.getDeadlineDate());
+        r.setDeadlineTime(st.getDeadlineTime());
+        r.setCreatedAt(st.getCreatedAt());
+        r.setUpdatedAt(st.getUpdatedAt());
+
+        // Files already submitted against this SubTask – flatten every submission
+        // round into a single list of files (newest submissions first).
+        List<SubmissionFileResponse> files = subTaskRepository.findById(st.getId())
+                .map(SubTask::getSubmissions)
+                .orElse(List.of())
+                .stream()
+                .sorted((a, b) -> {
+                    Instant ia = a.getSubmittedAt() == null ? Instant.EPOCH : a.getSubmittedAt();
+                    Instant ib = b.getSubmittedAt() == null ? Instant.EPOCH : b.getSubmittedAt();
+                    return ib.compareTo(ia);
+                })
+                .flatMap(sub -> sub.getFiles() == null ? java.util.stream.Stream.empty()
+                        : sub.getFiles().stream()
+                                .sorted((f1, f2) -> {
+                                    Integer o1 = f1.getFileOrder() == null ? Integer.MAX_VALUE : f1.getFileOrder();
+                                    Integer o2 = f2.getFileOrder() == null ? Integer.MAX_VALUE : f2.getFileOrder();
+                                    return Integer.compare(o1, o2);
+                                }))
+                .map(this::mapToSubmissionFileResponse)
+                .collect(Collectors.toList());
+        r.setSubmittedFiles(files);
+        return r;
+    }
+
+    private SubmissionFileResponse mapToSubmissionFileResponse(SubmissionFile sf) {
+        SubmissionFileResponse r = new SubmissionFileResponse();
+        r.setId(sf.getId());
+        r.setOriginalName(sf.getOriginalName());
+        r.setFilePath(sf.getFilePath());
+        r.setFileSize(sf.getFileSize());
+        r.setContentType(sf.getContentType());
+        r.setFileType(sf.getFileType());
+        r.setFileOrder(sf.getFileOrder());
+        return r;
+    }
+
     // Explicitly add chapter completion endpoint logic here? The spec says "Một
     // Chapter KHÔNG ĐƯỢC phép chuyển trạng thái thành COMPLETED nếu vẫn còn ít nhất
     // một Task con của nó có trạng thái khác DONE."
@@ -440,7 +519,9 @@ public class ProductionWorkflowServiceImpl implements ProductionWorkflowService 
         ChapterWithTasksResponse cr = new ChapterWithTasksResponse();
         BeanUtils.copyProperties(chapter, cr);
         List<Task> tasks = taskRepository.findByChapterId(chapter.getId());
-        cr.setTasks(tasks.stream().map(this::mapToTaskResponse).collect(Collectors.toList()));
+        cr.setTasks(tasks.stream()
+                .map(this::mapToTaskWithSubTasksResponse)
+                .collect(Collectors.toList()));
         return cr;
     }
 }

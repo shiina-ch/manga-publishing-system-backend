@@ -1,5 +1,6 @@
 package group1.com.MangaSystemAndManagement.controller;
 import group1.com.MangaSystemAndManagement.dto.request.ChapterRequest;
+import group1.com.MangaSystemAndManagement.dto.response.ChapterResponse;
 import group1.com.MangaSystemAndManagement.model.Chapter;
 import group1.com.MangaSystemAndManagement.service.interfaces.ChapterService;
 import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
@@ -27,7 +28,10 @@ public class ChapterController {
     public ResponseEntity<ResponseBase> findAll() {
         try {
             List<Chapter> result = service.findAll();
-            return ResponseEntity.status(200).body(new ResponseBase(200, "Success", result));
+            List<ChapterResponse> response = result.stream()
+                    .map(ChapterResponse::from)
+                    .toList();
+            return ResponseEntity.status(200).body(new ResponseBase(200, "Success", response));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ResponseBase(500, e.getMessage(), null));
         }

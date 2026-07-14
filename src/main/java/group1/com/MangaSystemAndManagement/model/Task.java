@@ -101,6 +101,9 @@ public class Task {
     @Column(name = "progress_percentage")
     private Integer progressPercentage = 0;
 
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<SubTask> subTasks;
+
     // --- V4: dedicated date+time deadline columns (kept nullable so legacy
     //     rows with only the Instant Deadline column are untouched).
     @Column(name = "deadline_date")
