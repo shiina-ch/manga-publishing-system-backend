@@ -1,6 +1,7 @@
 package group1.com.MangaSystemAndManagement.controller;
 
 import group1.com.MangaSystemAndManagement.dto.request.ProductionPlanRequest;
+import group1.com.MangaSystemAndManagement.dto.response.ProductionPlanResponse;
 import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
 import group1.com.MangaSystemAndManagement.model.ProductionPlan;
 import group1.com.MangaSystemAndManagement.service.interfaces.ProductionPlanService;
@@ -8,6 +9,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -44,6 +47,19 @@ public class ProductionPlanController {
             return ResponseEntity.status(200).body(new ResponseBase(200, "Success", result));
         } catch (Exception e) {
             return ResponseEntity.status(404).body(new ResponseBase(404, e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/production-plans")
+    public ResponseEntity<ResponseBase> getAll() {
+        try {
+            List<ProductionPlan> result = service.getAllProductionPlans();
+            List<ProductionPlanResponse> response = result.stream()
+                    .map(ProductionPlanResponse::from)
+                    .toList();
+            return ResponseEntity.status(200).body(new ResponseBase(200, "Success", response));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new ResponseBase(500, e.getMessage(), null));
         }
     }
 }

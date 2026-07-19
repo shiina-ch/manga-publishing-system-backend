@@ -1,9 +1,10 @@
 package group1.com.MangaSystemAndManagement.controller;
 import group1.com.MangaSystemAndManagement.dto.request.AssignTantouRequest;
 import group1.com.MangaSystemAndManagement.dto.request.ProjectRequest;
+import group1.com.MangaSystemAndManagement.dto.response.ProjectResponse;
+import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
 import group1.com.MangaSystemAndManagement.model.Project;
 import group1.com.MangaSystemAndManagement.service.interfaces.ProjectService;
-import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -31,7 +32,10 @@ public class ProjectController {
     public ResponseEntity<ResponseBase> findAll() {
         try {
             List<Project> result = service.findAll();
-            return ResponseEntity.status(200).body(new ResponseBase(200, "Success", result));
+            List<ProjectResponse> response = result.stream()
+                    .map(ProjectResponse::from)
+                    .toList();
+            return ResponseEntity.status(200).body(new ResponseBase(200, "Success", response));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ResponseBase(500, e.getMessage(), null));
         }
@@ -40,7 +44,7 @@ public class ProjectController {
     public ResponseEntity<ResponseBase> findById(@PathVariable Long id) {
         try {
             return service.findById(id)
-                    .map(result -> ResponseEntity.status(200).body(new ResponseBase(200, "Success", result)))
+                    .map(p -> ResponseEntity.status(200).body(new ResponseBase(200, "Success", ProjectResponse.from(p))))
                     .orElseGet(() -> ResponseEntity.status(404).body(new ResponseBase(404, "Not found", null)));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ResponseBase(500, e.getMessage(), null));
@@ -78,7 +82,7 @@ public class ProjectController {
         try {
             Project result = service.assignTantou(projectId, request.getTantouId());
             return ResponseEntity.status(200)
-                    .body(new ResponseBase(200, "Tantō assigned successfully", result));
+                    .body(new ResponseBase(200, "Tantō assigned successfully", ProjectResponse.from(result)));
         } catch (org.springframework.security.access.AccessDeniedException e) {
             return ResponseEntity.status(403).body(new ResponseBase(403, e.getMessage(), null));
         } catch (RuntimeException e) {

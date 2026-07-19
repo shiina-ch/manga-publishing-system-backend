@@ -1,6 +1,7 @@
 package group1.com.MangaSystemAndManagement.controller;
 
 import group1.com.MangaSystemAndManagement.dto.request.SubmissionRequest;
+import group1.com.MangaSystemAndManagement.dto.response.SubmissionResponse;
 import group1.com.MangaSystemAndManagement.model.Submission;
 import group1.com.MangaSystemAndManagement.service.interfaces.SubmissionService;
 import group1.com.MangaSystemAndManagement.dto.response.ResponseBase;
@@ -54,7 +55,9 @@ public class SubmissionController {
     @Operation(summary = "Get all submissions")
     public ResponseEntity<ResponseBase> findAll() {
         try {
-            List<Submission> result = service.findAll();
+            List<SubmissionResponse> result = service.findAll().stream()
+                    .map(SubmissionResponse::from)
+                    .toList();
             return ResponseEntity.status(200).body(new ResponseBase(200, "Success", result));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ResponseBase(500, e.getMessage(), null));
@@ -66,7 +69,7 @@ public class SubmissionController {
     public ResponseEntity<ResponseBase> findById(@PathVariable Long id) {
         try {
             return service.findById(id)
-                    .map(result -> ResponseEntity.status(200).body(new ResponseBase(200, "Success", result)))
+                    .map(s -> ResponseEntity.status(200).body(new ResponseBase(200, "Success", SubmissionResponse.from(s))))
                     .orElseGet(() -> ResponseEntity.status(404).body(new ResponseBase(404, "Submission not found", null)));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ResponseBase(500, e.getMessage(), null));

@@ -48,11 +48,13 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Project> findById(Long id) {
         return repository.findById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Project> findAll() {
         return repository.findAll();
     }

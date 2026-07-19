@@ -9,6 +9,8 @@ import group1.com.MangaSystemAndManagement.service.interfaces.ProductionPlanServ
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ProductionPlanServiceImpl implements ProductionPlanService {
@@ -49,5 +51,10 @@ public class ProductionPlanServiceImpl implements ProductionPlanService {
     public ProductionPlan getProductionPlan(Long id) {
         return productionPlanRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Production Plan not found"));
+    }
+
+    @Override
+    public List<ProductionPlan> getAllProductionPlans() {
+        return productionPlanRepository.findAll();
     }
 }
